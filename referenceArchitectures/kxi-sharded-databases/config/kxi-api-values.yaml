@@ -1,0 +1,24 @@
+# Minimum values overrides for the kxi-api chart
+.common_values: &common_values
+  imagePullSecrets:
+    - name: kx-pull-secret
+
+  # You must set your license name. Default is 'kc.lic'
+  # Available types are:
+  #  - kc.lic
+  #  - k4.lic
+  #  - kx.lic
+  kxLicenseName: kc.lic
+
+kxi-gw:
+  #  common values from anchors on the top
+  <<: *common_values
+
+  kxiRc:
+    envs:
+      - name: KXI_ALLOW_PARTIAL_LABELS
+        value: "true" #this allows data to be returned even if the routed DAP isn't available
+
+kxi-sp:
+  #  common values from anchors on the top
+  <<: *common_values

@@ -1,0 +1,78 @@
+# Anchor to set common values for the sub-charts in this reference architecture
+.common_values: &common_values
+  imagePullSecrets:
+    - name: kx-pull-secret
+
+  # You must set your license name. Default is 'kc.lic'
+  # Available types are:
+  #  - kc.lic
+  #  - k4.lic
+  #  - kx.lic
+  kxLicenseName: kc.lic
+
+kxi-gw:
+  <<: *common_values
+
+kxi-db:
+  <<: *common_values
+
+  # This defines the assembly file to be loaded into the InsightsDB.
+  # It should be on the base directory of the chart folder under `kxi-db`
+  # More info: https://code.kx.com/insights/microservices/database/configuration/assembly/database.html
+  assembly:
+    filename: assembly.yaml
+
+  db:
+    # Intraday persistent storage configuration
+    idb:
+      # Defines the storageClassNames for all the persistent data storage in the InsightsDB
+      # This should map to Kubernetes storageClassNames with accessMode of RWM
+      # More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+      storageClassName: "fsx-lustre"
+      # Size of the Intraday persistent storage
+      size: "2Gi"
+    # HDB Tier 1 persistent storage configuration
+    hdbt1:
+      # Defines the storageClassNames for all the persistent data storage in the InsightsDB
+      # This should map to Kubernetes storageClassNames with accessMode of RWM
+      # More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+      storageClassName: "fsx-lustre"
+      # Size of the HDB Tier 1 persistent storage
+      size: "2Gi"
+    # HDB Tier 2 persistent storage configuration
+    hdbt2:
+      # Defines the storageClassNames for all the persistent data storage in the InsightsDB
+      # This should map to Kubernetes storageClassNames with accessMode of RWM
+      # More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+      storageClassName: "fsx-lustre"
+      # Size of the HDB Tier 2 persistent storage
+      size: "2Gi"
+    # HDB Tier 3 persistent storage configuration
+    hdbt3:
+      # Defines the storageClassNames for all the persistent data storage in the InsightsDB
+      # This should map to Kubernetes storageClassNames with accessMode of RWM
+      # More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+      storageClassName: "fsx-lustre"
+      # Size of the HDB Tier 3 persistent storage
+      size: "2Gi"
+    
+  # Defines the RT stream name associated with the deployed InsightsDB instance. 
+  # With prefix must match the deployed name of the RT stream minus replica number
+  # Associated RT Stream pods 'rt-kxi-<REPLICA-NO>'
+  stream:
+    prefix: "rt-"
+    name: "kxi"
+  
+  kxiDa:
+    # Defines the name and port of the RC to allow the data to be accessed via queries
+    # This must be set to the appropriate full FQDN RC service and port
+    # When deploying the chart this should be set to `$RELEASENAME-kxi-gw-rc:5040 
+    # where $RELEASENAME is the name the chart is deployed as
+    rcAddr: "kxi-kxi-gw-rc:5040"
+
+kxi-rt:
+  <<: *common_values
+
+  persistence:
+    # Capacity of claim.
+    capacity: 2Gi

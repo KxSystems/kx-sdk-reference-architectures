@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "kxi-sp.fullname" . }}-sidecar
+  labels:
+    {{- include "kxi-sp.labels" . | nindent 4 }}
+data:
+  config.json: |-
+    {
+      "connection": "::{{ .Values.service.port }}",
+      "frequencySecs": 5,
+      "metrics": {
+        "enabled": false,
+        "frequency": 5,
+        "handler": {
+          "pc": false,
+          "pg": false,
+          "ph": false,
+          "po": false,
+          "pp": false,
+          "ps": false,
+          "ts": false,
+          "wc": false,
+          "wo": false,
+          "ws": false
+        }
+      }
+    }

@@ -1,0 +1,10 @@
+Installed Insights Database Chart
+================================
+This chart deploys an instance of the Insights Database to Kubernetes
+
+Included
+========
+ - SM Storage Manager which writes data to disk and manages migration through tiers
+ - DAPs Data Access Processes - RDB, IDB, HDBs to provide access to data in the various tiers
+
+See docs for more info: https://code.kx.com/insights/microservices/database/index.html

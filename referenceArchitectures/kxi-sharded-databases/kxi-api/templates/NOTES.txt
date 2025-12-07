@@ -1,0 +1,8 @@
+Installed kdb Insights Sharded Databases - API Access Chart
+================================
+
+You have installed an instance of the kdb Sharded Databases API Access charts. This deploys the following components using their independent charts:
+- A kxi-gw chart used to query the data from the kxi-db chart
+  See docs for more info: https://code.kx.com/insights/microservices/database/query/index.html
+- A kxi-sp chart used to deploy and manage stream processing pipelines
+  See docs for more info: https://code.kx.com/insights/1.16/microservices/stream-processor/index.html

@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-idb
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    {{- include "kxi-db.da.labels" . | nindent 4 }}
+    app: {{ include "kxi-db.fullname" . }}-da
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: {{ .Values.db.idb.storageClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.db.idb.size }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-hdbt1
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    {{- include "kxi-db.da.labels" . | nindent 4 }}
+    app: {{ include "kxi-db.fullname" . }}-da
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: {{ .Values.db.hdbt1.storageClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.db.hdbt1.size }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-hdbt2
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    {{- include "kxi-db.da.labels" . | nindent 4 }}
+    app: {{ include "kxi-db.fullname" . }}-da
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: {{ .Values.db.hdbt2.storageClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.db.hdbt2.size }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-hdbt3
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    {{- include "kxi-db.da.labels" . | nindent 4 }}
+    app: {{ include "kxi-db.fullname" . }}-da
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: {{ .Values.db.hdbt3.storageClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.db.hdbt3.size }}

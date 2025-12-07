@@ -1,0 +1,128 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "kxi-sp.fullname" . }}
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "kxi-sp.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services","configmaps", "persistentvolumeclaims", "serviceaccounts"]
+    verbs: ["get", "watch", "list", "create", "update", "patch", "delete", "deletecollection"]
+  - apiGroups: ["monitoring.coreos.com"]
+    resources: ["servicemonitors"]
+    verbs: ["get", "watch", "list", "create", "update", "patch", "delete", "deletecollection"]
+  - apiGroups: ["apps"]
+    resources: ["replicasets","statefulsets","deployments"]
+    verbs: ["get", "watch", "list", "create", "update", "patch", "delete", "deletecollection"]
+  - apiGroups: ["insights.kx.com"]
+    resources: ["assemblies"]
+    verbs: ["get", "watch", "list"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["rolebindings"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "kxi-sp.fullname" . }}-controller
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "kxi-sp.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services","configmaps", "persistentvolumeclaims", "serviceaccounts"]
+    verbs: ["get", "watch", "list", "create", "update", "patch", "delete", "deletecollection"]
+  - apiGroups: ["monitoring.coreos.com"]
+    resources: ["servicemonitors"]
+    verbs: ["get", "watch", "list", "create", "update", "patch", "delete", "deletecollection"]
+  - apiGroups: ["apps"]
+    resources: ["replicasets","statefulsets","deployments"]
+    verbs: ["get", "watch", "list", "create", "update", "patch", "delete", "deletecollection"]
+  - apiGroups: ["insights.kx.com"]
+    resources: ["assemblies"]
+    verbs: ["get", "watch", "list"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["rolebindings"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "kxi-sp.fullname" . }}-worker
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "kxi-sp.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "watch", "list"]
+  - apiGroups: ["insights.kx.com"]
+    resources: ["assemblies"]
+    verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "kxi-sp.fullname" . }}
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "kxi-sp.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "kxi-sp.serviceAccountName" . }}
+    apiGroup: ""
+roleRef:
+  kind: Role
+  name: {{ include "kxi-sp.fullname" . }}
+  apiGroup: ""
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Release.Namespace }}:{{ include "kxi-sp.fullname" . }}
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "kxi-sp.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "patch"]
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Release.Namespace }}:{{ include "kxi-sp.fullname" . }}
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "kxi-sp.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "kxi-sp.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+    apiGroup: ""
+roleRef:
+  kind: ClusterRole
+  name: {{ .Release.Namespace }}:{{ include "kxi-sp.fullname" . }}
+  apiGroup: ""

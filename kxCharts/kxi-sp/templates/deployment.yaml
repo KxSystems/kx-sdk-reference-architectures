@@ -1,0 +1,202 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kxi-sp.fullname" . }}
+  labels:
+    {{- include "kxi-sp.labels" . | nindent 4 }}
+    app: {{ include "kxi-sp.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "kxi-sp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/log: {{ include ( print $.Template.BasePath "/qlogconfigmap.yaml" ) . | sha256sum }}
+        checksum/config: {{ include ( print $.Template.BasePath "/sidecarconfigmap.yaml" ) . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "kxi-sp.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "kxi-sp.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: sidecar
+          image: "{{ .Values.image.repository }}/{{ .Values.kxiSidecar.component | default "kxi-sidecar" }}:{{ .Values.kxiSidecar.image.tag | default .Chart.AppVersion }}"
+          args: [ "-p", "8080" ]
+          ports:
+            - containerPort: 8080
+              name: metrics
+          env:
+            - name: KXI_CONFIG_FILE
+              value: "/opt/kx/sidecarConfig/config.json"
+          volumeMounts:
+            - name: tmp-sidecar
+              mountPath: "/tmp"
+              readOnly: false
+            - name: {{ include "kxi-sp.fullname" . }}-sidecar
+              mountPath: /opt/kx/sidecarConfig/
+            - name: {{ include "kxi-sp.fullname" . }}-log
+              mountPath: /opt/kx/config
+            - name: kx-license
+              mountPath: /opt/kx/lic
+              readOnly: true
+        - name: {{ .Chart.Name }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}/{{ .Values.image.component | default "kxi-sp-coordinator" }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            {{- with .Values.args }}
+            {{- tpl ( toYaml . ) $ | nindent 12 }}
+            {{- end }}
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+            - name: KXI_CONFIG_DIR
+              value: "/opt/kx/config"
+            - name: KXI_NAME
+              value: "{{ .Release.Name }}-kxi-sp"
+            - name: KXI_SP_FULLNAME
+              value: "{{ .Release.Name }}-kxi-sp"
+            - name: KXI_SC
+              value: "SPCOORD"
+            - name: DEFAULT_SPCTL_IMAGE
+              value: "{{ .Values.image.repository }}/kxi-sp-controller:{{ .Values.image.tag | default .Chart.AppVersion }}"
+            - name: DEFAULT_SPWORK_IMAGE
+              value: "{{ .Values.image.repository }}/kxi-sp-worker:{{ .Values.image.tag | default .Chart.AppVersion }}"
+            - name: DEFAULT_ML_IMAGE
+              value: "{{ .Values.image.repository }}/kxi-ml:{{ .Values.image.tag | default .Chart.AppVersion }}"
+            - name: DEFAULT_PY_IMAGE
+              value: "{{ .Values.image.repository }}/kxi-sp-python:{{ .Values.image.tag | default .Chart.AppVersion }}"
+            - name: KXI_SIDECAR_IMAGE
+              value: "{{ .Values.image.repository }}/kxi-sidecar:{{ .Values.kxiSidecar.image.tag | default .Chart.AppVersion }}"
+            - name: KXI_SIDECAR_PORT
+              value: "8080"
+            - name: KXI_LICENSE_SECRET
+              value: kx-license
+            - name: SERVICE_ACCOUNT
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
+            - name: KXI_AUTH_DISABLED
+              value: "1"
+            {{- if .Values.persistence.enabled }}
+            - name: KXI_SP_STORAGE_CLASS
+              value: {{ .Values.persistence.storageClassName}}
+            - name: KXI_SP_CHECKPOINT_DIR
+              value: {{ .Values.persistence.checkpointDir | quote }}
+            - name: KXI_SP_CTL_CHECKPOINT_FREQ
+              value: {{ .Values.persistence.controllerCheckpointFreq | quote }}
+            - name: KXI_SP_WORKER_CHECKPOINT_FREQ
+              value: {{ .Values.persistence.workerCheckpointFreq | quote }}
+            - name: KXI_SP_STORAGE_SIZE
+              value: {{ .Values.persistence.storage | quote }}
+              {{- else }}
+            - name: KXI_SP_SILENCE_CHECKPOINTS
+              value: "true"
+            {{- end }}
+            - name: KXI_SP_CTL_PULL_POLICY
+              value: {{ .Values.image.pullPolicy }}
+            - name: KXI_SP_WORKER_PULL_POLICY
+              value: {{ .Values.image.pullPolicy }}
+            - name: KXI_SP_SERVICE_MONITOR_ENABLED
+              value: "false"
+          ports:
+            - name: kxi-sp
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: workloadinfo
+              mountPath: /etc/workloadinfo
+            - name: kxi-sp-config-volume
+              mountPath: /etc/config
+            - name: {{ include "kxi-sp.fullname" . }}-sidecar
+              mountPath: /opt/kx/sidecarConfig/
+            - name: {{ include "kxi-sp.fullname" . }}-log
+              mountPath: /opt/kx/config/
+            - name: tmp
+              mountPath: /tmp
+            - name: kx-license
+              mountPath: /opt/kx/lic
+              readOnly: true
+      volumes:
+        - name: tmp-sidecar
+          emptyDir:
+            sizeLimit: 100Mi
+        - name: {{ include "kxi-sp.fullname" . }}-sidecar
+          configMap:
+            name: {{ include "kxi-sp.fullname" . }}-sidecar
+        - name: {{ include "kxi-sp.fullname" . }}-log
+          configMap:
+            name: {{ include "kxi-sp.fullname" . }}-log
+        - name: workloadinfo
+          downwardAPI:
+            items:
+              - path: "labels"
+                fieldRef:
+                  fieldPath: metadata.labels
+        - name: kxi-sp-config-volume
+          configMap:
+            name: {{ include "kxi-sp.fullname" . }}-config
+        - name: tmp
+          emptyDir:
+            sizeLimit: 100Mi
+        - name: kx-license
+          secret:
+            defaultMode: 420
+            items:
+              - key: license
+                # path: k4.lic
+                path: {{ .Values.kxLicenseName }}
+            optional: false
+            secretName: kx-license
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

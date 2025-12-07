@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kxi-gw.fullname" . }}-sg
+  {{- with .Values.kxiSg.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "kxi-gw.sg.labels" . | nindent 4 }}
+    app: {{ include "kxi-gw.fullname" . }}-sg
+spec:
+  type: {{ .Values.kxiSg.service.type }}
+  ports:
+    - name: kxi-gw-qipc
+      port: {{ .Values.kxiSg.service.ports.qipc }}
+      targetPort: {{.Values.kxiSg.service.ports.qipc}}
+    {{- if .Values.kxiSg.customIpcAuth.enabled }}
+    - name: kxi-gw-ext-qipc
+      port: {{ .Values.kxiSg.service.ports.qipcext }}
+      targetPort: {{ .Values.kxiSg.service.ports.qipcext }}
+    {{- end }}
+    - name: kxi-gw-http
+      port: {{.Values.kxiSg.service.ports.http}}
+      targetPort: {{.Values.kxiSg.service.ports.http}}
+    - name: kxi-gw-metrics
+      port: 8081
+      targetPort: metrics
+  selector:
+    {{- include "kxi-gw.sg.selectorLabels" . | nindent 4 }}

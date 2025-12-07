@@ -1,0 +1,26 @@
+# Chart artefacts
+*.tgz
+Chart.lock
+
+# VS Code project folder
+.vscode
+
+# Environments
+.env*
+.venv*
+env*/
+venv*/
+ENV/
+
+# q licenses
+k4.lic
+kc.lic
+kx.lic
+
+# Mac specific files
+.DS_Store
+
+# Vim specific dev
+.vimrc
+.nvimrc
+Session.vim

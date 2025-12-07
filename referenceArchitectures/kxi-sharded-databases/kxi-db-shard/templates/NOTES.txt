@@ -1,0 +1,8 @@
+Installed kdb Insights Sharded Databases - {{ .Release.name }} 
+================================
+
+You have installed an instance of the kdb Sharded Databases - {{ .Release.name }}. This deploys the following components using their independent charts:
+- A kxi-rt chart as the message bus to log the ingested data and publish to the kxi-db chart
+  See docs for more info: https://code.kx.com/insights/microservices/rt/index.html
+- A kxi-db chart encompassing the core elements of the InsightsDB which can ingest and persist data
+  See docs for more info: https://code.kx.com/insights/microservices/database/index.html

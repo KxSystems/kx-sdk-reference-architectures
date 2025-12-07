@@ -1,0 +1,158 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kxi-gw.fullname" . }}-agg
+  labels:
+    {{- include "kxi-gw.agg.labels" . | nindent 4 }}
+    app: {{ include "kxi-gw.fullname" . }}-agg
+spec:
+  replicas: {{ .Values.kxiAgg.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "kxi-gw.agg.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        checksum/log: {{ include ( print $.Template.BasePath "/qlogconfigmap.yaml" ) . | sha256sum }}
+        checksum/config: {{ include ( print $.Template.BasePath "/kxi-agg-sidecarconfigmap.yaml" ) . | sha256sum }}
+        {{- with .Values.kxiAgg.podAnnotations }}
+        {{- tpl ( toYaml . ) $ | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "kxi-gw.agg.labels" . | nindent 8 }}
+        {{- with .Values.kxiAgg.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        app: {{ include "kxi-gw.fullname" . }}-agg
+    spec:
+      serviceAccountName: {{ include "kxi-gw.fullname" . }}-agg
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: agg
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}/kxi-sg-agg:{{ .Values.kxiAgg.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.kxiAgg.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.kxiAgg.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.kxiAgg.service.port }}
+              name: kxi-agg-tcp
+          env:
+            - name: KXI_NAME
+              value: {{ include "kxi-gw.fullname" . }}-agg
+            - name: KXI_PORT
+              value: {{ .Values.kxiAgg.service.port | quote }}
+            - name: KXI_CONFIG_FILE
+              value: "/opt/kx/sidecarConfig/config.json"
+            - name: KXI_SG_RC_ADDR
+              value: {{ include "kxi-gw.fullname" . }}-rc:{{ .Values.kxiRc.service.port }}
+            - name: KXI_LOG_CONFIG
+              value: /opt/kx/config/qlog.json
+            {{- with .Values.kxiAgg.envs }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+            {{- if ( .Values.kxiAgg.customCode.configMap | empty | not ) }}
+            - name: KXI_CUSTOM_FILE
+              value: /opt/kx/packages/{{ .Values.kxiAgg.customCode.entry }}
+            {{- end }}
+          volumeMounts:
+            {{- with .Values.kxiAgg.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+            - name: tmp
+              mountPath: "/tmp"
+              readOnly: false
+            - name: {{ include "kxi-gw.fullname" . }}-agg-sidecar
+              mountPath: /opt/kx/sidecarConfig/
+            - name: {{ include "kxi-gw.fullname" . }}-log
+              mountPath: /opt/kx/config
+            - name: insights-kx-license
+              mountPath: /opt/kx/lic
+              readOnly: true
+            {{- if ( .Values.kxiAgg.customCode.configMap | empty | not ) }}
+            - mountPath: /opt/kx/packages
+              readOnly: true
+              name: kxi-customcode
+            {{- end }}
+        - name: sidecar
+          image: "{{ .Values.image.repository }}/kxi-sidecar:{{ .Values.kxiSidecar.image.tag | default .Chart.AppVersion }}"
+          args: ["-p", "8080" ]
+          ports:
+            - containerPort: 8080
+              name: metrics
+          env:
+            - name: KXI_CONFIG_FILE
+              value: "/opt/kx/sidecarConfig/config.json"
+            - name: KXI_LOG_CONFIG
+              value: /opt/kx/config/qlog.json
+          volumeMounts:
+            - name: tmp-sidecar
+              mountPath: "/tmp"
+              readOnly: false
+            - name: {{ include "kxi-gw.fullname" . }}-agg-sidecar
+              mountPath: /opt/kx/sidecarConfig/
+            - name: {{ include "kxi-gw.fullname" . }}-log
+              mountPath: /opt/kx/config
+            - name: insights-kx-license
+              mountPath: /opt/kx/lic
+              readOnly: true
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 100Mi
+        - name: tmp-sidecar
+          emptyDir:
+            sizeLimit: 100Mi
+        - name: insights-kx-license
+          secret:
+            defaultMode: 420
+            items:
+              - key: license
+                path: {{ .Values.kxLicenseName }}
+            optional: false
+            secretName: kx-license
+        {{- if ( .Values.kxiAgg.customCode.configMap | empty | not ) }}
+        - name: kxi-customcode
+          configMap:
+            name: {{ .Values.kxiAgg.customCode.configMap }}
+        {{- end }}
+        {{- with .Values.kxiAgg.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        - name: {{ include "kxi-gw.fullname" . }}-agg-sidecar
+          configMap:
+            name: {{ include "kxi-gw.fullname" . }}-agg-sidecar
+        - name: {{ include "kxi-gw.fullname" . }}-log
+          configMap:
+            name: {{ include "kxi-gw.fullname" . }}-log
+    
+      {{- with .Values.kxiAgg.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kxiAgg.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kxiAgg.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

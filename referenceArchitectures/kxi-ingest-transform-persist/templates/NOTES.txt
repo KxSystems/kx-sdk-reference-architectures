@@ -1,0 +1,12 @@
+Installed kdb Insights Ingest, Transform and Persist - SP Based Reference Architecture
+================================
+
+You have installed an instance of the kdb Insights Ingest, Persist and Transform - SP Based, Reference Architecture chart. This deploys the following components using their independent charts:
+- A kxi-db chart encompassing the core elements of the InsightsDB which can ingest and persist data
+  See docs for more info: https://code.kx.com/insights/microservices/database/index.html
+- A kxi-gw chart used to query the data from the kxi-db chart
+  See docs for more info: https://code.kx.com/insights/1.16/microservices/database/query/index.html
+- A kxi-rt chart as the message bus to log the ingested data and publish to the kxi-db chart
+  See docs for more info: https://code.kx.com/insights/microservices/rt/index.html
+- A kxi-sp chart as the data generator pipeline, publishing messages to the InsightsDB
+  See docs for more info: https://code.kx.com/insights/microservices/stream-processor/index.html
