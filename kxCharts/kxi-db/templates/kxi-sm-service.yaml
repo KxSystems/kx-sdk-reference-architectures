@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+  name: {{ include "kxi-db.fullname" . }}-sm
+  {{- with .Values.kxiSm.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "kxi-db.sm.labels" . | nindent 4 }}
+    app: {{ include "kxi-db.fullname" . }}-sm
+spec:
+  type: ClusterIP
+  ports:
+    - name: kxi-sm-qipc
+      port: {{ .Values.kxiSm.service.port }}
+      targetPort: {{ .Values.kxiSm.service.port }}
+    - name: http-metrics
+      port: 8080
+      protocol: TCP
+      targetPort: http-metrics
+  selector:
+    {{- include "kxi-db.sm.selectorLabels" . | nindent 4 }}

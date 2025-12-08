@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kxi-gw.fullname" . }}-agg
+  {{- with .Values.kxiAgg.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "kxi-gw.agg.labels" . | nindent 4 }}
+    app: {{ include "kxi-gw.fullname" . }}-agg
+spec:
+  type: {{ .Values.kxiAgg.service.type }}
+  ports:
+    - port: {{ .Values.kxiAgg.service.port }}
+      targetPort: {{ .Values.kxiAgg.service.port }}
+      protocol: TCP
+      name: kxi-agg-tcp
+    - port: 8080
+      targetPort: metrics
+      protocol: TCP
+      name: kxi-agg-metrics
+  selector:
+    {{- include "kxi-gw.agg.selectorLabels" . | nindent 4 }}

@@ -1,0 +1,103 @@
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "kxi-gw.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create a default fully qualified app name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+If release name contains chart name it will be used as a full name.
+*/}}
+{{- define "kxi-gw.fullname" -}}
+{{- if .Values.fullnameOverride }}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "kxi-gw.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "kxi-gw.cm.labels" -}}
+helm.sh/chart: {{ include "kxi-gw.chart" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Common labels - kxi-agg
+*/}}
+{{- define "kxi-gw.agg.labels" -}}
+helm.sh/chart: {{ include "kxi-gw.chart" . }}
+{{ include "kxi-gw.agg.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels - kxi-agg
+*/}}
+{{- define "kxi-gw.agg.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "kxi-gw.name" . }}-agg
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Common labels - kxi-sg
+*/}}
+{{- define "kxi-gw.sg.labels" -}}
+helm.sh/chart: {{ include "kxi-gw.chart" . }}
+{{ include "kxi-gw.sg.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels - kxi-sg
+*/}}
+{{- define "kxi-gw.sg.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "kxi-gw.name" . }}-sg
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Common labels - kxi-rc
+*/}}
+{{- define "kxi-gw.rc.labels" -}}
+helm.sh/chart: {{ include "kxi-gw.chart" . }}
+{{ include "kxi-gw.rc.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels - kxi-rc
+*/}}
+{{- define "kxi-gw.rc.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "kxi-gw.name" . }}-rc
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

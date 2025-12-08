@@ -1,0 +1,96 @@
+# Minimum values overrides for the kxi-db-exch chart
+.common_values: &common_values
+  imagePullSecrets:
+    - name: kx-pull-secret
+
+  # You must set your license name. Default is 'kc.lic'
+  # Available types are:
+  #  - kc.lic
+  #  - k4.lic
+  #  - kx.lic
+  kxLicenseName: kc.lic
+
+kxi-db:
+  #  common values from anchors on the top
+  <<: *common_values
+  
+  db:
+    # Intraday persistent storage configuration
+    idb:
+      storageClassName: "fsx-lustre"
+      # Size of the Intraday persistent storage
+      size: "2Gi"
+    # HDB Tier 1 persistent storage configuration
+    hdbt1:
+      storageClassName: "fsx-lustre"
+      # Size of the HDB Tier 1 persistent storage
+      size: "2Gi"
+    # HDB Tier 2 persistent storage configuration
+    hdbt2:
+      storageClassName: "fsx-lustre"
+      # Size of the HDB Tier 2 persistent storage
+      size: "2Gi"
+    # HDB Tier 3 persistent storage configuration
+    hdbt3:
+      storageClassName: "fsx-lustre"
+      # Size of the HDB Tier 3 persistent storage
+      size: "2Gi"
+
+  kxiDa:
+    #  common values from anchors on the top
+    <<: *common_values
+    rcAddr: "kxi-api-kxi-gw-rc:5040"
+
+    # Default common environment variables for the DA
+    # Additional ENVs can be added and these overridden in custom values files. 
+    # If overriding 'envs', ensure you include all the default values.
+    envs:
+      - name: KXI_LOG_FORMAT
+        value: text
+      - name: KXI_LOG_LEVELS
+        value: default:debug
+      # RT running in single node mode
+      # More info: https://code.kx.com/insights/microservices/rt/quickstart/docker-compose.html#running-a-one-node-rt
+      - name: RT_REPLICAS
+        value: "1"
+  kxiSm:
+    # Default common environment variables for the DA
+    # Additional ENVs can be added and these overridden in custom values files
+    # If overriding 'envs', ensure you include all the default values.
+    envs:
+      - name: KXI_LOG_FORMAT
+        value: text
+      - name: KXI_LOG_LEVELS
+        value: default:debug
+      # RT running in single node mode
+      # More info: https://code.kx.com/insights/microservices/rt/quickstart/docker-compose.html#running-a-one-node-rt
+      - name: RT_REPLICAS
+        value: "1"
+  
+# Values for kxi-rt sub-chart
+kxi-rt:
+#  common values from anchors on the top
+  <<: *common_values
+
+  # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+  #  if the replicaCount is set to 1 to enable single node RT then please add ENVs for kxiDs component in kxi-db (kxi-db.kxiDa.envs) mentioned above.
+  replicaCount: 1
+  envs:
+    - name: RT_LOGLEVEL_CONSOLE
+      value: "INFO"
+    - name: RT_QURAFT_LOG_LEVEL
+      value: "INFO"
+    - name: RT_LOG_LEADER
+      value: "1"
+
+  # This is for setting up a additional external services
+  # Setting type to LoadBalancer and enabling will expose endpoints external to cluster.
+  # more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+  externalService:
+    enabled: false
+    # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+    # type: LoadBalancer
+  
+  persistence:
+    # Capacity of claim.
+    capacity: 2Gi

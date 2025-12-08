@@ -1,0 +1,19 @@
+# Custom DB shard values for the tenant db shard 2
+kxi-db:
+  assembly:
+    # Name of the assembly file database definition
+    filename: kxi-db-tenant-assembly.yaml
+
+  stream:
+    # Defines the RT stream name associated with this shard. 
+    # With prefix must match the deployed name of the RT stream minus replica number 
+    # Associated RT Stream pods 'rt-kxi-db-tenant-1-<REPLICA-NO>'
+    prefix: "rt-"
+    name: "kxi-db-tenant-1"
+
+  labels:
+    # Applies an array of key-value pairs labels to the assembly file to tag the data within the shard
+    # Queries can then provide labels to target specific shars if necessary.
+    # More info: https://code.kx.com/insights/1.14/microservices/database/query/purviews.html#labels
+    group: "tenant"
+    shrd: "one"

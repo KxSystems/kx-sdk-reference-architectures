@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kxi-sp.fullname" . }}
+  labels:
+    {{- include "kxi-sp.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
+      name: tcp-sp
+    - name: http-metrics
+      port: 8080
+      protocol: TCP
+      targetPort: metrics
+  selector:
+    {{- include "kxi-sp.selectorLabels" . | nindent 4 }}

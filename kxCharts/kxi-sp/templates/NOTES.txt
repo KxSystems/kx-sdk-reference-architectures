@@ -1,0 +1,38 @@
+You have installed an instance of the kdb Insights Stream Processor Coordinator service.
+
+Access
+======
+
+You can access your Coordinator from within the cluster using the following address:
+
+    {{include "kxi-sp.fullname" . }}.{{ .Release.Namespace }}.svc:{{ .Values.port | default "5000" }}
+
+Please wait a few seconds until your containers are pulled and started on the target cluster.
+
+You can communicate with the Coordinator from outside the cluster using the kubectl port-forward command.
+
+    $ kubectl port-forward svc/{{ include "kxi-sp.fullname" . }} {{ .Values.port | default "5000" }}:{{ .Values.port | default "5000" }}
+
+Deploying pipelines
+===================
+
+Once you have port-forwarded, you can create pipelines by issuing HTTP POST requests using a similar command to the example below, given you have a pipeline specification stored in a local q file called `spec.q`.
+
+    $ curl -X POST http://localhost:5000/pipeline/create -d \
+        "$(jq -n --arg spec "$(cat < spec.q)" \
+        '{
+            name     : "sp-example",
+            type     : "spec",
+            config   : { content: $spec },
+            settings : { maxWorkers: "10" }
+         }' | jq -asR .)"
+
+
+Destroying pipelines
+====================
+
+Pipelines can be removed from the cluster with the following REST API.
+
+    $ curl -X POST "localhost:5000/pipeline/teardown/<pipeline-id>"
+
+Further information about writing and deploying pipelines, including a Quickstart walkthrough, can be found in the kdb Insights Stream Processor documentation on https://code.kx.com/insights/1.15/microservices/stream-processor/index.html.

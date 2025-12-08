@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kxi-gw.fullname" . }}-rc
+  {{- with .Values.kxiRc.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "kxi-gw.rc.labels" . | nindent 4 }}
+    app: {{ include "kxi-gw.fullname" . }}-rc
+spec:
+  type: {{ .Values.kxiRc.service.type }}
+  ports:
+    - name: kxi-rc-qipc
+      port: {{ .Values.kxiRc.service.port }}
+      targetPort: {{ .Values.kxiRc.service.port }}
+    - port: 8080
+      targetPort: metrics
+      protocol: TCP
+      name: kxi-rc-metrics
+  selector:
+    {{- include "kxi-gw.rc.selectorLabels" . | nindent 4 }}

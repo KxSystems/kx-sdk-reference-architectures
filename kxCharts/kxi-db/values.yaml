@@ -1,0 +1,319 @@
+# Default values for kxi-db.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This sets the name of the InsightsDB deployment.
+nameOverride: ""
+  
+# This sets the full name of the InsightsDB deployment.
+fullnameOverride: ""
+
+# This is for the secrets for pulling an image from a private repository.
+# More information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+
+# You must set your license name. Default is 'kc.lic'
+# Available types are:
+#  - kc.lic
+#  - k4.lic
+#  - kx.lic
+kxLicenseName: kc.lic
+
+# Default image repository and pull settings for InsightsDB chart components
+image:
+  repository: portal.dl.kx.com
+  pullPolicy: IfNotPresent
+
+# Default pod security context for InsightsDB chart components
+podSecurityContext: 
+  # 'nobody' user
+  fsGroup: 65534
+  runAsUser: 65534
+  runAsNonRoot: true
+
+# Default security context for InsightsDB chart components
+securityContext:
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+# Defines whether the InsightsDB has lateData enabled
+# More info on lateData - https://code.kx.com/insights/microservices/database/query/late-data.html#configuring-late-data
+lateData: false
+
+# Defines the RT stream name associated with the deployed InsightsDB instance. 
+# With prefix must match the deployed name of the RT stream minus replica number 
+# Associated RT Stream pods 'rt-stream-<REPLICA-NO>'
+stream:
+  prefix: "rt-"
+  name: "stream"
+
+# This defines the assembly file to be loaded into the InsightsDB.
+# It should be on the base directory of the chart folder under `kxi-db`
+# More info: https://code.kx.com/insights/microservices/database/configuration/assembly/database.html
+assembly:
+  filename: assembly.yaml
+
+# InsightsDB storage configurations
+# This must be configured before deployment
+db:
+  # Intraday persistent storage configuration
+  idb:
+    # Defines the storageClassNames for all the persistent data storage in the InsightsDB
+    # This should map to Kubernetes storageClassNames with accessMode of RWM
+    # More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+    storageClassName: ""
+    # storageClassName: "fsx-lustre"
+    # Size of the Intraday persistent storage
+    size: ""
+    # size: "20Gi"
+  # HDB Tier 1 persistent storage configuration
+  hdbt1:
+    # Defines the storageClassNames for all the persistent data storage in the InsightsDB
+    # This should map to Kubernetes storageClassNames with accessMode of RWM
+    # More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+    storageClassName: ""
+    # storageClassName: "fsx-lustre"
+    # Size of the HDB Tier 1 persistent storage
+    size: ""
+    # size: "20Gi"
+  # HDB Tier 2 persistent storage configuration
+  hdbt2:
+    # Defines the storageClassNames for all the persistent data storage in the InsightsDB
+    # This should map to Kubernetes storageClassNames with accessMode of RWM
+    # More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+    storageClassName: ""
+    # storageClassName: "fsx-lustre"
+    # Size of the HDB Tier 2 persistent storage
+    size: ""
+    # size: "20Gi"
+  # HDB Tier 3 persistent storage configuration
+  hdbt3:
+    # Defines the storageClassNames for all the persistent data storage in the InsightsDB
+    # This should map to Kubernetes storageClassNames with accessMode of RWM
+    # More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+    storageClassName: ""
+    # storageClassName: "fsx-lustre"
+    # Size of the HDB Tier 3 persistent storage
+    size: ""
+    # size: "20Gi"
+
+kxiDa:
+
+  # This sets overriding container image information. Use if you wish to target specific versions of the DA. 
+  # More information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+  image:
+    tag: ""
+
+  # This sets the number of replicas for the DA. 
+  # More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#replicas-and-scaling
+  replicaCount: 1
+
+  # Can provide any valid q runtime argument here. Full details https://code.kx.com/q/basics/cmdline/
+  # NOTE the '-p' argument will be overridden by the 'KXI_PORT' env variable
+  args: [ ]
+    #- '-s'
+    #- '2'
+    #- '-w'
+    #- '1946'
+    #- '-g'
+    #- '0'
+
+  # Entrypoint for custom code written under 'customcode'
+  # create your custom code and UDAs under here and it will be loaded into the DA under /opt/kx/packages/{customCodeEntry}.q
+  # More information can be found here: https://code.kx.com/insights/1.15/microservices/database/configuration/uda.html#load-uda
+  customCodeEntry: udas.q
+
+  # This is for setting up a service and the port in use by the DA
+  # More information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+  service:
+    port: 5040
+    # This sets the service annotations for the DAP. 
+    # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+    annotations: {}
+  
+  # This defines how much storage should be assigned for rt logs storage in the DA
+  rtLogs:
+    size: 2Gi
+
+  # Sets the available free string queries available for the DA.
+  # Each has security and performance implications.
+  # More info: https://code.kx.com/insights/api/kxi-python/query.html#qsql
+  allowedSbxApis: .kxi.sql,.kxi.qsql,.kxi.sql2
+  # Defines whether InsightsDB is secured to prevent qsql-based string executions
+  # If enabled only API function queries will be allowed on the InsightsDB
+  secureEnabled: false
+  # Defines the name and port of the RC to allow the data to be accessed via queries
+  # This must be set to the appropriate full FQDN RC service and port
+  rcAddr: ""
+  # rcAddr: "kxi-gw-rc:5040"
+
+  # Links the DA to the appropriate service class configuration in your assembly
+  # under 'elements.dap.instances'
+  # More info: https://code.kx.com/draft/insights/enterprise/database/configuration/package/storage.html#environment-variables
+  serviceClassConfig: dap
+
+  # Default common environment variables for the DA
+  # Additional ENVs can be added and these overridden in custom values files. 
+  # If overriding 'envs', ensure you include all the default values.
+  envs:
+    - name: KXI_LOG_FORMAT
+      value: text
+    - name: KXI_LOG_LEVELS
+      value: default:debug
+    # RT running in single node mode
+    # More info: https://code.kx.com/insights/microservices/rt/quickstart/docker-compose.html#running-a-one-node-rt
+    # - name: RT_REPLICAS
+    #   value: 1
+
+    
+  # Allows additional volumes to be added to the DAP
+  volumes: []
+
+  # Allows additional volumeMounts to be added to the DA
+  volumeMounts: []
+
+  # This is for setting Kubernetes Annotations to a Pod.
+  # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  podAnnotations: {}
+
+  # Allows adding node selector constraints to a Pod.
+  # For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes/
+  nodeSelector: {}
+
+  # This is for setting Kubernetes Affinity to a Pod.
+  # For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  # This is for setting Kubernetes Tolerations to a Pod
+  # For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: {}
+  
+  # This is for setting Kubernetes Labels to a Pod.
+  # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  podLabels: {}
+
+  # Resource Coordinator Kubernetes resources.
+  # For more information checkout: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  # Define how pods are created/deleted
+  # OrderedReady, sequential; Parallel, all at once
+  # More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: Parallel
+
+  # Define how pod updates are applied
+  # RollingUpdate, replace gradually; OnDelete, replace only on delete
+  # More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  updateStrategy: {}
+
+kxiSm:
+  
+  # This sets overriding container image information. Use if you wish to target specific versions of the SM. 
+  # More information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+  image:
+    tag: ""
+
+  # Can provide any valid q runtime argument here. Full details https://code.kx.com/q/basics/cmdline/
+  # NOTE the '-p' argument will be overridden by the 'KXI_PORT' env variable
+  args: [ ]
+    #- '-s'
+    #- '2'
+    #- '-w'
+    #- '1946'
+    #- '-g'
+    #- '0'
+
+  # This is for setting up a service and the port in use by the SM
+  # More information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+  service:
+    port: 5040
+    # This sets the service annotations for the SM. 
+    # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+    annotations: {}
+
+  # This defines how much storage should be assigned for rt logs storage in the SM
+  rtLogs:
+    size: 2Gi
+
+  # Default common environment variables for the DA
+  # Additional ENVs can be added and these overridden in custom values files
+  # If overriding 'envs', ensure you include all the default values.
+  envs:
+    - name: KXI_LOG_FORMAT
+      value: text
+    - name: KXI_LOG_LEVELS
+      value: default:debug
+    # RT running in single node mode
+    # More info: https://code.kx.com/insights/microservices/rt/quickstart/docker-compose.html#running-a-one-node-rt
+    # - name: RT_REPLICAS
+    #   value: 1
+
+  # Allows additional volumes to be added to the SM
+  volumes: []
+  
+  # Allows additional volumeMounts to be added to the SM
+  volumeMounts: []
+
+  # This is for setting Kubernetes Annotations to a Pod.
+  # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  podAnnotations: {}
+
+  # Allows adding node selector constraints to a Pod.
+  # For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes/
+  nodeSelector: {}
+  
+  # This is for setting Kubernetes Affinity to a Pod.
+  # For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  # This is for setting Kubernetes Tolerations to a Pod
+  # For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: {}
+  
+  # This is for setting Kubernetes Labels to a Pod.
+  # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  podLabels: {}
+
+  # Storage Manager Kubernetes resources.
+  # For more information checkout: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  # Define how pods are created/deleted
+  # OrderedReady, sequential; Parallel, all at once
+  # More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: Parallel
+
+  # Define how pod updates are applied
+  # RollingUpdate, replace gradually; OnDelete, replace only on delete
+  # More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  updateStrategy: {}
+
+# Default Sidecar configuration for Insights Gateway chart components
+kxiSidecar:
+  # This sets overriding container image information. Use if you wish to target specific versions of the sidecar. 
+  # More information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+  image:
+    tag: "1.16.0"
