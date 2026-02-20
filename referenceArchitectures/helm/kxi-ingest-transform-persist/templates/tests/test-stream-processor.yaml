@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "kxi-ingest-transform-persist.fullname" . }}-test-stream-processor"
+  labels:
+    {{- include "kxi-ingest-transform-persist.labels" . | nindent 4 }}
+    app.kubernetes.io/component: test
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "2"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  serviceAccountName: {{ include "kxi-ingest-transform-persist.fullname" . }}-test
+  restartPolicy: Never
+  containers:
+  - name: test-stream-processor
+    image: curlimages/curl:latest
+    command:
+    - /bin/sh
+    - -c
+    - |
+      set -e
+      echo "Testing Stream Processor service..."
+      SP_SERVICE="{{ .Release.Name }}-kxi-sp"
+      SP_PORT={{ index .Values "kxi-sp" "service" "port" | default "5000" }}
+      
+      # Wait for service to be ready
+      echo "Waiting for Stream Processor service ${SP_SERVICE} to be ready..."
+      for i in $(seq 1 30); do
+        if curl -f -s --max-time 5 http://${SP_SERVICE}:${SP_PORT}/pipelines > /dev/null 2>&1; then
+          echo "Stream Processor HTTP endpoint is accessible"
+          break
+        fi
+        if [ $i -eq 30 ]; then
+          echo "ERROR: Stream Processor HTTP endpoint not accessible after 30 attempts"
+          exit 1
+        fi
+        echo "Attempt $i/30: Service not ready, waiting..."
+        sleep 2
+      done
+      
+      # Test SP coordinator endpoint
+      echo "Testing Stream Processor coordinator endpoint..."
+      # TODO
+      
+      echo "Stream Processor test completed successfully"
+

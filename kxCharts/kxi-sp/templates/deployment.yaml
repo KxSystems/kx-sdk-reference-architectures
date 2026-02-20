@@ -39,18 +39,18 @@ spec:
           args: [ "-p", "8080" ]
           ports:
             - containerPort: 8080
-              name: metrics
+              name: http-metrics
           env:
             - name: KXI_CONFIG_FILE
-              value: "/opt/kx/sidecarConfig/config.json"
+              value: "/opt/kx/config/sidecar/config.json"
           volumeMounts:
             - name: tmp-sidecar
               mountPath: "/tmp"
               readOnly: false
             - name: {{ include "kxi-sp.fullname" . }}-sidecar
-              mountPath: /opt/kx/sidecarConfig/
+              mountPath: /opt/kx/config/sidecar
             - name: {{ include "kxi-sp.fullname" . }}-log
-              mountPath: /opt/kx/config
+              mountPath: /opt/kx/config/log
             - name: kx-license
               mountPath: /opt/kx/lic
               readOnly: true
@@ -79,11 +79,13 @@ spec:
                 fieldRef:
                   fieldPath: metadata.uid
             - name: KXI_CONFIG_DIR
-              value: "/opt/kx/config"
+              value: "/opt/kx/config/sidecar"
+            - name: LOG_DIR
+              value: "/opt/kx/config/log"
             - name: KXI_NAME
-              value: "{{ .Release.Name }}-kxi-sp"
+              value: {{ include "kxi-sp.fullname" . }}
             - name: KXI_SP_FULLNAME
-              value: "{{ .Release.Name }}-kxi-sp"
+              value: {{ include "kxi-sp.fullname" . }}
             - name: KXI_SC
               value: "SPCOORD"
             - name: DEFAULT_SPCTL_IMAGE
@@ -127,6 +129,8 @@ spec:
               value: {{ .Values.image.pullPolicy }}
             - name: KXI_SP_SERVICE_MONITOR_ENABLED
               value: "false"
+            - name: KXI_CONFIG_FILE
+              value: "/opt/kx/config/sidecar/config.json"
           ports:
             - name: kxi-sp
               containerPort: {{ .Values.service.port }}
@@ -149,9 +153,9 @@ spec:
             - name: kxi-sp-config-volume
               mountPath: /etc/config
             - name: {{ include "kxi-sp.fullname" . }}-sidecar
-              mountPath: /opt/kx/sidecarConfig/
+              mountPath: /opt/kx/config/sidecar/
             - name: {{ include "kxi-sp.fullname" . }}-log
-              mountPath: /opt/kx/config/
+              mountPath: /opt/kx/config/log/
             - name: tmp
               mountPath: /tmp
             - name: kx-license

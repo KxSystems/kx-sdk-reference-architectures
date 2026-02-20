@@ -6,23 +6,23 @@ metadata:
     {{- include "kxi-sp.labels" . | nindent 4 }}
 data:
   config.json: |-
-    {
-      "connection": "::{{ .Values.service.port }}",
-      "frequencySecs": 5,
-      "metrics": {
-        "enabled": false,
-        "frequency": 5,
-        "handler": {
-          "pc": false,
-          "pg": false,
-          "ph": false,
-          "po": false,
-          "pp": false,
-          "ps": false,
-          "ts": false,
-          "wc": false,
-          "wo": false,
-          "ws": false
+      {
+        "connection": "::{{ .Values.service.port }}",
+        "frequencySecs": 5,
+        "metrics": {
+          "enabled": true,
+          "frequency": 5,
+          "handler": {
+            "pc": false,
+            "pg": false,
+            "ph": false,
+            "po": false,
+            "pp": false,
+            "ps": false,
+            "ts": false,
+            "wc": false,
+            "wo": false,
+            "ws": false
+          }
         }
       }
-    }

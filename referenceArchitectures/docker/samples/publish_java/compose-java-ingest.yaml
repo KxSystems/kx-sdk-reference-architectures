@@ -1,0 +1,16 @@
+---
+networks:
+  kx:
+    name: kx
+    external: true
+
+services:
+  java-pub:
+    build:
+      context: .
+      args:
+        REGISTRY_URL: portal.dl.kx.com
+    networks: [kx]
+    environment:
+      - RT_LOG_PATH=/tmp/rt-data/logs/
+      - RT_REP_DIR=/tmp/rt-data/repdir/

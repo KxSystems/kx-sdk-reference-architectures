@@ -134,4 +134,4 @@ kxiSidecar:
   # This sets overriding container image information. Use if you wish to target specific versions of the sidecar.
   # More information can be found here: https://kubernetes.io/docs/concepts/containers/images/
   image:
-    tag: "1.16.0"
+    tag: "1.17.0"

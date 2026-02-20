@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "kxi-db-shard.fullname" . }}-test-pods-ready"
+  labels:
+    {{- include "kxi-db-shard.labels" . | nindent 4 }}
+    app.kubernetes.io/component: test
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  serviceAccountName: {{ include "kxi-db-shard.fullname" . }}-test
+  restartPolicy: Never
+  containers:
+  - name: test-pods-ready
+    image: bitnami/kubectl:latest
+    command:
+    - /bin/bash
+    - -c
+    - |
+      set -e
+      echo "Checking if all kxi-db-shard pods are ready..."
+      
+      RELEASE_NAME="{{ .Release.Name }}"
+      NAMESPACE="{{ .Release.Namespace }}"
+      
+      # Check kxi-db DA (Data Access) pods
+      echo "Checking kxi-db DA pods for release ${RELEASE_NAME}..."
+      DA_PODS=$(kubectl get pods -n ${NAMESPACE} -l app=${RELEASE_NAME}-da --field-selector=status.phase=Running --no-headers 2>/dev/null | wc -l || echo "0")
+      if [ "$DA_PODS" -lt "1" ]; then
+        echo "ERROR: Database DA pods are not running for release ${RELEASE_NAME}"
+        kubectl get pods -n ${NAMESPACE} -l app=${RELEASE_NAME}-da
+        exit 1
+      fi
+      echo "SUCCESS: Database DA pods are running (${DA_PODS} pod(s))"
+      
+      # Check kxi-db SM (Storage Manager) pods
+      echo "Checking kxi-db SM pods for release ${RELEASE_NAME}..."
+      SM_PODS=$(kubectl get pods -n ${NAMESPACE} -l app=${RELEASE_NAME}-sm --field-selector=status.phase=Running --no-headers 2>/dev/null | wc -l || echo "0")
+      if [ "$SM_PODS" -lt "1" ]; then
+        echo "ERROR: Database SM pods are not running for release ${RELEASE_NAME}"
+        kubectl get pods -n ${NAMESPACE} -l app=${RELEASE_NAME}-sm
+        exit 1
+      fi
+      echo "SUCCESS: Database SM pods are running (${SM_PODS} pod(s))"
+      
+      # Check kxi-rt pods for this shard
+      echo "Checking kxi-rt pods for release ${RELEASE_NAME}..."
+      RT_REPLICAS={{ index .Values "kxi-rt" "replicaCount" | default "3" }}
+      RT_PODS=$(kubectl get pods -n ${NAMESPACE} -l app.kubernetes.io/name=kxi-rt,app.kubernetes.io/instance=${RELEASE_NAME} --field-selector=status.phase=Running --no-headers 2>/dev/null | wc -l || echo "0")
+      if [ "$RT_PODS" -lt "$RT_REPLICAS" ]; then
+        echo "ERROR: Expected ${RT_REPLICAS} RT pods for release ${RELEASE_NAME}, found ${RT_PODS}"
+        kubectl get pods -n ${NAMESPACE} -l app.kubernetes.io/name=kxi-rt,app.kubernetes.io/instance=${RELEASE_NAME}
+        exit 1
+      fi
+      echo "SUCCESS: RT pods are running (${RT_PODS}/${RT_REPLICAS}) for release ${RELEASE_NAME}"
+      
+      echo "All kxi-db-shard pods are ready for release ${RELEASE_NAME}!"
+

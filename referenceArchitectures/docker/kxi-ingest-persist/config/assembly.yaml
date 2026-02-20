@@ -1,0 +1,92 @@
+name: kdb Insights
+description: Example Insights Assembly
+labels:
+  region: us
+
+tables:
+  taxi:
+    type: partitioned
+    prtnCol: pickup
+    sortColsDisk: [vendor]
+    columns:
+      - name: vendor
+        type: symbol
+        attrDisk: parted
+      - name: pickup
+        type: timestamp
+      - name: dropoff
+        type: timestamp
+      - name: passengers
+        type: short
+      - name: distance
+        type: real
+      - name: fare
+        type: real
+      - name: extra
+        type: real
+      - name: tax
+        type: real
+      - name: tip
+        type: real
+      - name: tolls
+        type: real
+      - name: fees
+        type: real
+      - name: total
+        type: real
+      - name: payment_type
+        type: symbol
+
+bus:
+  stream:
+    protocol: rt
+    topic: data
+
+mounts:
+  rdb:
+    type: stream
+    baseURI: file://stream
+    partition: none
+  idb:
+    type: local
+    baseURI: file:///mnt/db/idb
+    partition: ordinal
+  hdb:
+    type: local
+    baseURI: file:///mnt/db/hdb
+    partition: date
+
+elements:
+  dap:
+    instances:
+      dap:
+        mountList: [rdb, idb, hdb]
+
+  sm:
+    description: Storage manager
+    source: stream
+    tiers:
+      - name: stream
+        mount: rdb
+      - name: idb
+        mount: idb
+        schedule:
+          freq: 0D00:10:00 # every 10 minutes
+      - name: hdb1
+        mount: hdb
+        schedule:
+          freq: 1D00:00:00 # every day
+          snap:   01:35:00 # at 1:35 AM
+        retain:
+          time: 2 days
+      - name: hdb2
+        mount: hdb
+        store: file:///mnt/db/hdbtier2
+        retain:
+          time: 5 weeks
+      - name: hdb3
+        mount: hdb
+        store: file:///mnt/db/hdbtier3
+        retain:
+          time: 3 months
+    disableDiscovery: true
