@@ -6,7 +6,6 @@ Chart.lock
 .vscode
 
 # Environments
-.env*
 .venv*
 env*/
 venv*/
@@ -24,3 +23,5 @@ kx.lic
 .vimrc
 .nvimrc
 Session.vim
+
+prometheus-data*

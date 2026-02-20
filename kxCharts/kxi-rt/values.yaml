@@ -16,11 +16,11 @@ image:
 imagePullSecrets: []
 
 # Can provide any valid q runtime argument here. Full details https://code.kx.com/q/basics/cmdline/
-args: []
+# Additionally RT archival configuration can be provided here. More information see - https://code.kx.com/insights/microservices/rt/index.html#archiver
+args: ["-time" , "10080", "-disk", "90"]
 
-# Default common environment variables for the Resource Coordinator
 # Additional ENVs can be added and these overridden in custom values files
-# For Archiver configuration see - https://code.kx.com/insights/enterprise/configuration/rt-archival.html#raft-log-retention
+# For RT configuration options see - https://code.kx.com/insights/enterprise/configuration/rt-archival.html#raft-log-retention
 envs:
   - name: RT_LOGLEVEL_CONSOLE
     value: "INFO"
@@ -166,7 +166,7 @@ kxiSidecar:
   # This sets overriding container image information. Use if you wish to target specific versions of the sidecar.
   # More information can be found here: https://kubernetes.io/docs/concepts/containers/images/
   image:
-    tag: "1.16.0"
+    tag: "1.17.0"
 
 # Define how pods are created/deleted
 # OrderedReady, sequential; Parallel, all at once

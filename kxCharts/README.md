@@ -54,7 +54,7 @@ NOTE: they do not necessarily have to have defaults, but should allow users to i
 
 ### Consistent KX License configuration
 
-As it is necessary to have a kx license available to run Insights q processes we should be consistent on hwo charts incorporate this license to avoid unnecessary configuration.
+As it is necessary to have a kx license available to run Insights q processes we should be consistent on how charts incorporate this license to avoid unnecessary configuration.
 
 This should follow
 

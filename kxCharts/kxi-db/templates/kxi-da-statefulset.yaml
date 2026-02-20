@@ -117,6 +117,10 @@ spec:
               name: {{ .Release.Name }}-rt
             - mountPath: /mnt/db/hdb
               name: hdbt1
+            - mountPath: /mnt/db/hdbt2
+              name: hdbt2
+            - mountPath: /mnt/db/hdbt3
+              name: hdbt3
             - mountPath: /mnt/db/idb
               name: idb
             - mountPath: /mnt/config/assembly.yaml
@@ -183,6 +187,12 @@ spec:
         - name: hdbt1
           persistentVolumeClaim:
            claimName: {{ .Release.Name }}-hdbt1
+        - name: hdbt2
+          persistentVolumeClaim:
+           claimName: {{ .Release.Name }}-hdbt2
+        - name: hdbt3
+          persistentVolumeClaim:
+           claimName: {{ .Release.Name }}-hdbt3
         - name: idb
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-idb

@@ -1,0 +1,210 @@
+---
+networks:
+  kx:
+    name: kx
+    driver: bridge
+
+# Dedicated named volumes for db, logs, logs_rt (persist across restarts).
+# config, packages and sidecar_cfg remain bind-mounted from host (see .env).
+# Use DELETE_VOLUMES=1 (default in deployment-test) to remove volumes before deploy.
+volumes:
+  db:
+  logs:
+  logs_rt:
+
+services:
+  kxi-rc:
+    image: ${kxi_img_rc}
+    hostname: kxi-rc
+    environment:
+      - KDB_K4LICENSE_B64 # K4 Licenses
+      #- KDB_LICENSE_B64 # KC Licenses
+      - KXI_NAME=kxi-rc
+      - KXI_PORT=${kxi_port_rc}
+      - KXI_LOG_FORMAT=${kxi_log_format}
+      - KXI_LOG_LEVELS=default:${kxi_log_level}
+      - KXI_ALLOWED_SBX_APIS=${kxi_apis}
+    networks: [kx]
+
+  kxi-agg:
+    image: ${kxi_img_agg}
+    environment:
+      - KDB_K4LICENSE_B64 # K4 Licenses
+      #- KDB_LICENSE_B64 # KC Licenses
+      - KXI_NAME=kxi-agg
+      - KXI_PORT=${kxi_port_agg}
+      - KXI_SG_RC_ADDR=kxi-rc:${kxi_port_rc}
+      - KXI_CUSTOM_FILE=/mnt/config/src/agg/custom.q  # Optional for custom APIs
+      - KXI_LOG_FORMAT=${kxi_log_format}
+      - KXI_LOG_LEVELS=default:${kxi_log_level}
+      - KXI_PACKAGES=custom:1.0.0
+      - KX_PACKAGE_PATH=/opt/kx/packages/
+    deploy:  # Optional: deploy multiple replicas.
+      mode: replicated
+      replicas: 1
+    networks: [kx]
+    volumes:
+      - ${kxi_dir_config}:/mnt/config
+      - ${kxi_dir_pkgs}:/opt/kx/packages
+
+  kxi-gw:
+    image: ${kxi_img_gw}
+    hostname: kxi-gw
+    environment:
+      - KDB_K4LICENSE_B64 # K4 Licenses
+      #- KDB_LICENSE_B64 # KC Licenses
+      - KXI_SG_METRICS_ENABLED=true
+      - KXI_SG_METRICS_PORT=81
+      - GATEWAY_QIPC_PORT=${kxi_port_gw_qipc}
+      - GATEWAY_HTTP_PORT=${kxi_port_gw_http}
+      - KXI_SG_RC_ADDR=kxi-rc:${kxi_port_rc}
+      - KXI_LOG_FORMAT=${kxi_log_format}
+      - KXI_LOG_LEVELS=default:${kxi_log_level}
+    ports:
+      - ${kxi_port_gw_qipc}:${kxi_port_gw_qipc}
+      - ${kxi_port_gw_http}:${kxi_port_gw_http}
+    deploy:  # Optional: deploy multiple replicas.
+      mode: replicated
+      replicas: 1
+    networks: [kx]
+
+  kxi-da:
+    hostname: kxi-da
+    image: ${kxi_img_da}
+    environment:
+      - KDB_K4LICENSE_B64 # K4 Licenses
+      #- KDB_LICENSE_B64 # KC Licenses
+      - KXI_NAME=kxi-da
+      - KXI_SC=dap
+      - KXI_PORT=${kxi_port_da}
+      - KXI_ASSEMBLY_FILE=/mnt/config/assembly.yaml
+      - KXI_SG_RC_ADDR=kxi-rc:${kxi_port_rc}
+      - KXI_SM_ADDR=kxi-sm:${kxi_port_sm}
+      - KXI_CUSTOM_FILE=/mnt/config/src/da/custom.q  # Optional for custom APIs
+      - KXI_LOG_FORMAT=${kxi_log_format}
+      - KXI_LOG_LEVELS=default:${kxi_log_level}
+      - KXI_ALLOWED_SBX_APIS=${kxi_apis}
+      - RT_LOG_PATH=/mnt/logs/da
+      - RT_TOPIC_PREFIX=rt-
+      - RT_REPLICAS=1
+      - KXI_SECURE_ENABLED=0
+      - KXI_LATE_DATA=true
+      # Optional for gathering metrics
+      - KXI_CONFIG_FILE=/sidecar-cfg/da-config.json
+      # Optional for gathering metrics
+      - KXI_DA_START_SIDECARS=true
+      - KXI_PACKAGES=custom:1.0.0
+      - KX_PACKAGE_PATH=/opt/kx/packages
+    ports:
+      - ${kxi_port_da}:${kxi_port_da}
+    networks: [kx]
+    volumes:
+      - ${kxi_dir_config}:/mnt/config
+      - db:/mnt/db
+      - logs:/mnt/logs
+      - ${kxi_dir_sidecar_cfg}:/sidecar-cfg/  # Optional for gathering metics
+      - ${kxi_dir_pkgs}:/opt/kx/packages
+
+  kxi-sm:
+    hostname: kxi-sm
+    image: ${kxi_img_sm}
+    command: -p 20001
+    environment:
+      - KDB_K4LICENSE_B64 # K4 Licenses
+      #- KDB_LICENSE_B64 # KC Licenses
+      - KXI_NAME=kxi-sm
+      - KXI_SC=sm
+      - KXI_PORT=${kxi_port_sm}
+      - KXI_ASSEMBLY_FILE=/mnt/config/assembly.yaml
+      - KXI_LOG_FORMAT=${kxi_log_format}
+      - KXI_LOG_LEVELS=default:${kxi_log_level}
+      - KXI_RT_SM_LOG_PATH=/mnt/logs/sm
+      - KXI_RT_EOI_LOG_PATH=/mnt/logs/eoi
+      - KXI_CONFIG_FILE=/mnt/config/sidecar-cfg/sm-config.json
+      - RT_TOPIC_PREFIX=rt-
+      - RT_REPLICAS=1
+      - KXI_LATE_DATA=true
+    ports:
+      - ${kxi_port_sm}:${kxi_port_sm}
+    networks: [kx]
+    volumes:
+      - db:/mnt/db
+      - logs:/mnt/logs
+      - ${kxi_dir_config}:/mnt/config
+
+  kxi-rt:
+    image: ${kxi_img_rt}
+    # Need to set hostname so rt nodes/publishers/subcribers can find each other
+    hostname: rt-data-0
+    command: [
+      '-p', '${kxi_port_rt}', '-in', '/s/in', '-out', '/s/out', '-cp',
+      '/s/state', '-size', '${kxi_rt_replicas}', '-limit', '${kxi_rt_limit}',
+      '-time', '${kxi_rt_time}', '-disk', '${kxi_rt_disk}'
+    ]
+    environment:
+      - KDB_K4LICENSE_B64 # K4 Licenses
+      #- KDB_LICENSE_B64 # KC Licenses
+      - RT_EXPORT_METRIC="0"
+      - RT_TOPIC_PREFIX=rt-
+      - RT_EXTERN_PREFIX=rt-
+      - RT_SINK=data
+      - RT_STREAM=data
+      - RT_LOGLEVEL_CONSOLE=${kxi_log_level}
+      - RT_QURAFT_LOG_LEVEL=${kxi_log_level}
+      - RT_SEQ_SESSION_PATH=/s/session
+      - RT_LOG_LEADER=
+      - RAFT_HEARTBEAT=${kxi_rt_heartbeat}
+      - RAFT_LOG_SIZE=${kxi_rt_log_size}
+      - RAFT_CHUNK_SIZE=${kxi_rt_chunk_size}
+    ports:
+      - ${kxi_port_rt_push_rep}:${kxi_port_rt_push_rep}
+    restart: unless-stopped
+    networks: [kx]
+    volumes:
+      - logs_rt:/s
+
+  # Sidecars for gathering metrics. Can be removed if not needed.
+  rc-sidecar:
+    image: ${kxi_sidecar}
+    environment:
+      - KDB_K4LICENSE_B64 # K4 Licenses
+      #- KDB_LICENSE_B64 # KC Licenses
+      - KXI_CONFIG_FILE=/sidecar-cfg/rc-config.json
+      - KXI_LOG_CONFIG=/sidecar-cfg/qlog.json
+    volumes:
+      - ${kxi_dir_sidecar_cfg}:/sidecar-cfg/
+    command: -p 8080
+    networks: [kx]
+  sm-sidecar:
+    image: ${kxi_sidecar}
+    environment:
+      - KDB_K4LICENSE_B64 # K4 Licenses
+      #- KDB_LICENSE_B64 # KC Licenses
+      - KXI_CONFIG_FILE=/sidecar-cfg/sm-config.json
+      - KXI_LOG_CONFIG=/sidecar-cfg/qlog.json
+    volumes:
+      - ${kxi_dir_sidecar_cfg}:/sidecar-cfg/
+    command: -p 8080
+    networks: [kx]
+  rt-sidecar:
+    image: ${kxi_sidecar}
+    environment:
+      - KDB_K4LICENSE_B64 # K4 Licenses
+      #- KDB_LICENSE_B64 # KC Licenses
+      - KXI_CONFIG_FILE=/sidecar-cfg/rt-config.json
+      - KXI_LOG_CONFIG=/sidecar-cfg/qlog.json
+    volumes:
+      - ${kxi_dir_sidecar_cfg}:/sidecar-cfg/
+    command: -p 8080
+    networks: [kx]
+  agg-sidecar:
+    image: ${kxi_sidecar}
+    environment:
+      - KDB_K4LICENSE_B64 # K4 Licenses
+      #- KDB_LICENSE_B64 # KC Licenses
+      - KXI_CONFIG_FILE=/sidecar-cfg/agg-config.json
+      - KXI_LOG_CONFIG=/sidecar-cfg/qlog.json
+    volumes:
+      - ${kxi_dir_sidecar_cfg}:/sidecar-cfg/
+    command: -p 8080
+    networks: [kx]

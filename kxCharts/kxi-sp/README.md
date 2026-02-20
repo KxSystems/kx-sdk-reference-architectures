@@ -62,7 +62,7 @@ VALUESFILE=myvalues.yaml
 NAMESPACE="kxi-sdk"
 helm install $RELEASENAME . -f $VALUESFILE -n $NAMESPACE
 ```
-Note: Please do not use `kxi-sp` as release name 
+Note: If `$RELEASENAME` is set as `kxi-sp` resources will be named `kxi-sp`, using the `helm` default `fullname` template.
 
 ### Upgrading/updating config
 

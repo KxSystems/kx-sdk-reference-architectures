@@ -1,0 +1,6 @@
+{
+  "name": "java-publisher",
+  "useSslRt": false,
+  "topics": { "insert": "data" },
+  "insert": { "insert": [":rt-data-0:5002"] }
+}
