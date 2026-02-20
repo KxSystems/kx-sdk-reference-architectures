@@ -1,0 +1,16 @@
+{
+    "name": "custom",
+    "version": "1.0.0",
+    "dependencies": [],
+    "metadata": {
+        "authors": [
+            {
+                "name": "jdoe"
+            }
+        ]
+    },
+    "entrypoints": {
+        "aggregator": "agg.q",
+        "data-access": "da.q"
+    }
+}

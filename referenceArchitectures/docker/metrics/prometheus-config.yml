@@ -1,0 +1,8 @@
+global:
+  scrape_interval:     15s # By default, scrape targets every 15 seconds.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds.
+
+scrape_configs:
+  - job_name: 'monitoring'
+    static_configs:
+            - targets: ['sm-sidecar:8080', 'rt-sidecar:8080', 'agg-sidecar:8080', 'rc-sidecar:8080', 'kxi-da:8081', 'kxi-da:8082', 'kxi-da:8083', 'kxi-gw:81']

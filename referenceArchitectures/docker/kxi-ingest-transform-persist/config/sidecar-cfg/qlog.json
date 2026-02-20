@@ -1,0 +1,5 @@
+{
+    "endpoints":["fd://stdout"],
+    "formatMode":"text",
+    "routings":{"DEFAULT":"TRACE"}
+}

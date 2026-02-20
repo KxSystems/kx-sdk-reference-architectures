@@ -1,0 +1,2 @@
+vendor,pickup,dropoff,passengers,distance,fare,extra,tax,tip,tolls,fees,total,payment_type
+Midtown,2024-04-05T14:39:23.544182089,2024-03-06T12:08:00.276335547,2,5,20,0,3,2,0,0,25,MasterCard
