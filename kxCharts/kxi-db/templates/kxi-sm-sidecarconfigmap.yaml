@@ -5,24 +5,4 @@ metadata:
   labels:
     {{- include "kxi-db.sm.labels" . | nindent 4 }}
 data:
-  config.json: |-
-      {
-        "connection": "::{{ .Values.kxiSm.service.port }}",
-        "frequencySecs": 5,
-        "metrics": {
-          "enabled": "true",
-          "frequency": 5,
-          "handler": {
-            "pc": true,
-            "pg": true,
-            "ph": true,
-            "po": true,
-            "pp": true,
-            "ps": true,
-            "ts": true,
-            "wc": true,
-            "wo": true,
-            "ws": true
-          }
-        }
-      }
+{{ include "sidecar.configJson" (list . (dict "connPortList" .Values.sidecar.connPortList)) | indent 2 }}

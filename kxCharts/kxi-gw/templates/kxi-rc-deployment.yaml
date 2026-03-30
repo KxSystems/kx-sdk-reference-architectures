@@ -48,7 +48,7 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.kxiRc.args }}
-          args: 
+          args:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           ports:

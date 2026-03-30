@@ -37,4 +37,3 @@ subjects:
 - kind: ServiceAccount
   name: {{ include "kxi-db-shard.fullname" . }}-test
   namespace: {{ .Release.Namespace }}
-

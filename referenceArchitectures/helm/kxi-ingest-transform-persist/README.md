@@ -1,7 +1,8 @@
 # Ingest, Transform and Persist - SP Based Reference Architecture Chart
 
 ## Description
-In this reference architecture the key use case solved builds upon the [kxi-ingest-persist](../kxi-ingest-persist) deployment adding a stream processor to deploy dynamic pipelines. It will utilise the kxi-db, kxi-gw, kxi-rt and kxi-sp charts
+
+In this reference architecture the key use case solved builds upon the [kxi-ingest-persist](../kxi-ingest-persist) deployment adding a stream processor to deploy dynamic pipelines. It will utilize the kxi-db, kxi-gw, kxi-rt and kxi-sp charts
 
 ## Architecture
 
@@ -21,18 +22,23 @@ The implementation consists of:
 1. `helm` command installed on your local machine
 1. A [Distributed storage solution](../../README.md#kubernetes-prerequisites) offering RWM access level. (Kubernetes docs for more [here](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes))
 1. Authentication details to Kx image repositories
+
     ```bash
     KX_USER=....
     KX_PASS=....
     KX_REGISTRY="portal.dl.kx.com"
     NAMESPACE="kxi-sdk"
     ```
-1.  `imagePullSecrets` setup on your cluster
+
+1. `imagePullSecrets` setup on your cluster
+
     ```bash
     kubectl create secret docker-registry kx-pull-secret --docker-username=$KX_USER --docker-password=$KX_PASS --docker-server=$KX_REGISTRY -n $NAMESPACE
     ```
+
 1. A license secret
     _Contact KX to get a license_
+
     ```bash
     LIC_FILE=./kc.lic
     kubectl create secret generic kx-license --from-file=license=$LIC_FILE -n $NAMESPACE
@@ -89,9 +95,9 @@ SP_URL=localhost:5000 # Assumes port forward. Update if NodePort or LoadBalancer
 SP_NAME=kxi-itp-kxi-sp # Name of the SP Coordinator - $RELEASENAME-kxi-sp
 DATA_PAYLOAD=$(
     jq -c -n --arg sp_name "$SP_NAME" --arg spec "$(cat $SPEC_FILE)" \
-        '{ 
-            name   : $sp_name, 
-            type   : "spec", 
+        '{
+            name   : $sp_name,
+            type   : "spec",
             config : { content: $spec },
             persistence : {
                 controller : { class:"standard", size:"2Gi", checkpointFreq: 5000 },
@@ -107,15 +113,13 @@ curl -X POST "http://$SP_URL/pipeline/create" \
 # curl -X POST "http://$SP_URL/pipelines/teardown"
 ```
 
-Further information about writing and deploying pipelines, including a Quickstart walkthrough, can be found in the kdb Insights Stream Processor documentation on https://code.kx.com/insights/1.15/microservices/stream-processor/index.html.
+Further information about writing and deploying pipelines, including a Quickstart walkthrough, can be found in the kdb Insights Stream Processor documentation on <https://code.kx.com/insights/1.15/microservices/stream-processor/index.html>.
 
-At this point data can be [queried](#query-data-out) from the running system
-
+At this point data can be [queried](#querying-data) from the running system.
 
 ### Data access
 
 By default, KX reference architectures on Kubernetes do not expose external endpoints to the application and port forwarding is used to access the gateway. External access can be provided via Load Balancers. To enable external access points you can add the following configuration to the [config](config/kxi-ingest-transform-persist-values.yaml) file as follows:
-
 
 ```yaml
 ...
@@ -150,20 +154,19 @@ Depending on whether you have enabled external access to the gateway or not, the
     GW_URL="localhost:8080"
     ```
 
-
 Now that `$GW_URL` is configured you can query data:
 
 ```bash
 curl -X GET -H 'Content-Type: application/json' http://$GW_URL/data -d '{"table":"trade"}'
 ```
 
-
 ### Deploying with your own database assembly definition
 
 The instructions above deploys reference architecture with a minimal database with a trade table defined in the [assembly.yaml](../../../kxCharts/kxi-db/assembly.yaml) under `kxCharts/kxi-db/` directory. When you're ready to deploy your own assembly workload with your own schemas, you can provide your own yaml file.
 
-1. Create your own assembly file `myassembly.yaml` in `kxCharts/kxi-db/` directory. Full info on creating database configurations [here](https://code.kx.com/insights/microservices/database/configuration/assembly/database.html)
-1. Update the deployment [config](config/kxi-ingest-transform-persist-values.yaml) to define the database configuration you wish to deploy
+1. Create your own assembly file `myassembly.yaml` in `kxCharts/kxi-db/` directory. Full info on creating database configurations [here](https://code.kx.com/insights/microservices/database/configuration/assembly/database.html).
+1. Update the deployment [config](config/kxi-ingest-transform-persist-values.yaml) to define the database configuration you wish to deploy.
+
     ```
     ...
     kxi-db:
@@ -171,11 +174,15 @@ The instructions above deploys reference architecture with a minimal database wi
         filename: myassembly.yaml
     ...
     ```
+
 1. Uninstall previous deployment if it is not done yet
+
    ```bash
       helm uninstall $RELEASENAME -n $NAMESPACE
    ```
+
 1. Deploy again with your own database
+
    ```bash
    # Run from '.../referenceArchitectures/kxi-ingest-transform-persist/' directory
    helm dependency build

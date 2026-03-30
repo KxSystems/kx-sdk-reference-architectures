@@ -47,7 +47,7 @@ This chart deploys the Insights RT component to allow a client to ingest data fo
     ```yaml
     imagePullSecrets:
     - name: kx-pull-secret
-    
+
     # You must set your license name. Default is 'kc.lic'
     # Available types are:
     #  - kc.lic
@@ -75,13 +75,13 @@ To publish and subscribe to data on a deployed RT instance it is necessary that 
 When deploying this `kxi-rt` chart with the command it will deploy up to 3 replicas (depending on configuration) of the RT message bus providing resources
 
 ```bash
-helm install stream . 
+helm install stream .
 ```
 
 ```bash
 service/rt-stream-0
 service/rt-stream-1
-service/rt-stream-2  
+service/rt-stream-2
 ```
 
 This is illustrated in the architecture diagram along with the potential client configuration to stream into and out of this RT deployment

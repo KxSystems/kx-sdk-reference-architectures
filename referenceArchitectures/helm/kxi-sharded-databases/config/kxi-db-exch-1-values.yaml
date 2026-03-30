@@ -5,8 +5,8 @@ kxi-db:
     filename: kxi-db-exch-assembly.yaml
 
   stream:
-    # Defines the RT stream name associated with this shard. 
-    # With prefix must match the deployed name of the RT stream minus replica number 
+    # Defines the RT stream name associated with this shard.
+    # With prefix must match the deployed name of the RT stream minus replica number
     # Associated RT Stream pods 'rt-kxi-db-exch-1-<REPLICA-NO>'
     prefix: "rt-"
     name: "kxi-db-exch-1"

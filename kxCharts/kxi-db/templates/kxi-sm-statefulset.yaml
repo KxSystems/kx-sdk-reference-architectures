@@ -51,12 +51,12 @@ spec:
           {{- with .Values.kxiSm.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
-          {{- end }}  
+          {{- end }}
           ports:
             - containerPort: {{ .Values.kxiSm.service.port }}
               protocol: TCP
           {{- with .Values.kxiSm.args }}
-          args: 
+          args:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           env:

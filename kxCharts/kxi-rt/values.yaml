@@ -33,7 +33,7 @@ envs:
 service:
   # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: ClusterIP
-  # This sets the service annotations for the Internal RT Service. 
+  # This sets the service annotations for the Internal RT Service.
   # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   annotations: {}
 
@@ -47,7 +47,7 @@ externalService:
   useSsl: false
   # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: LoadBalancer
-  # This sets the service annotations for the External RT Service. 
+  # This sets the service annotations for the External RT Service.
   # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   annotations: {}
   # This allows you to specify your LoadBalancer's external IP address
@@ -65,7 +65,7 @@ kxLicenseName: kc.lic
 persistence:
   # Capacity of claim.
   #
-  capacity: 2Gi 
+  capacity: 2Gi
   # Unset means we use the default storage class. When using NFS, set this to
   # the configured storage class.
   #
@@ -100,7 +100,7 @@ podAnnotations: {}
 podLabels: {}
 
 # Default pod security context for Reliable Transport chart components
-podSecurityContext: 
+podSecurityContext:
   # 'nobody' user
   fsGroup: 65534
   runAsUser: 65534
@@ -166,7 +166,7 @@ kxiSidecar:
   # This sets overriding container image information. Use if you wish to target specific versions of the sidecar.
   # More information can be found here: https://kubernetes.io/docs/concepts/containers/images/
   image:
-    tag: "1.17.0"
+    tag: "1.18.0"
 
 # Define how pods are created/deleted
 # OrderedReady, sequential; Parallel, all at once

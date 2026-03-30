@@ -1,24 +1,18 @@
 ---
+
 networks:
   kx:
     name: kx
     driver: bridge
 
-# Dedicated named volumes for db, logs, logs_rt (persist across restarts).
-# config, packages and sidecar_cfg remain bind-mounted from host (see .env).
-# Use DELETE_VOLUMES=1 (default in deployment-test) to remove volumes before deploy.
-volumes:
-  db:
-  logs:
-  logs_rt:
-
 services:
   kxi-rc:
     image: ${kxi_img_rc}
     hostname: kxi-rc
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    env_file:
+      - license.env
     environment:
-      - KDB_K4LICENSE_B64 # K4 Licenses
-      #- KDB_LICENSE_B64 # KC Licenses
       - KXI_NAME=kxi-rc
       - KXI_PORT=${kxi_port_rc}
       - KXI_LOG_FORMAT=${kxi_log_format}
@@ -28,9 +22,10 @@ services:
 
   kxi-agg:
     image: ${kxi_img_agg}
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    env_file:
+      - license.env
     environment:
-      - KDB_K4LICENSE_B64 # K4 Licenses
-      #- KDB_LICENSE_B64 # KC Licenses
       - KXI_NAME=kxi-agg
       - KXI_PORT=${kxi_port_agg}
       - KXI_SG_RC_ADDR=kxi-rc:${kxi_port_rc}
@@ -50,9 +45,10 @@ services:
   kxi-gw:
     image: ${kxi_img_gw}
     hostname: kxi-gw
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    env_file:
+      - license.env
     environment:
-      - KDB_K4LICENSE_B64 # K4 Licenses
-      #- KDB_LICENSE_B64 # KC Licenses
       - KXI_SG_METRICS_ENABLED=true
       - KXI_SG_METRICS_PORT=81
       - GATEWAY_QIPC_PORT=${kxi_port_gw_qipc}
@@ -71,9 +67,10 @@ services:
   kxi-da:
     hostname: kxi-da
     image: ${kxi_img_da}
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    env_file:
+      - license.env
     environment:
-      - KDB_K4LICENSE_B64 # K4 Licenses
-      #- KDB_LICENSE_B64 # KC Licenses
       - KXI_NAME=kxi-da
       - KXI_SC=dap
       - KXI_PORT=${kxi_port_da}
@@ -100,18 +97,19 @@ services:
     networks: [kx]
     volumes:
       - ${kxi_dir_config}:/mnt/config
-      - db:/mnt/db
-      - logs:/mnt/logs
+      - ${kxi_dir_data_db}:/mnt/db
+      - ${kxi_dir_data_logs}:/mnt/logs
       - ${kxi_dir_sidecar_cfg}:/sidecar-cfg/  # Optional for gathering metics
       - ${kxi_dir_pkgs}:/opt/kx/packages
 
   kxi-sm:
     hostname: kxi-sm
     image: ${kxi_img_sm}
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
     command: -p 20001
+    env_file:
+      - license.env
     environment:
-      - KDB_K4LICENSE_B64 # K4 Licenses
-      #- KDB_LICENSE_B64 # KC Licenses
       - KXI_NAME=kxi-sm
       - KXI_SC=sm
       - KXI_PORT=${kxi_port_sm}
@@ -128,22 +126,23 @@ services:
       - ${kxi_port_sm}:${kxi_port_sm}
     networks: [kx]
     volumes:
-      - db:/mnt/db
-      - logs:/mnt/logs
+      - ${kxi_dir_data_db}:/mnt/db
+      - ${kxi_dir_data_logs}:/mnt/logs
       - ${kxi_dir_config}:/mnt/config
 
   kxi-rt:
     image: ${kxi_img_rt}
-    # Need to set hostname so rt nodes/publishers/subcribers can find each other
+    # Need to set hostname so rt nodes/publishers/subscribers can find each other
     hostname: rt-data-0
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
     command: [
       '-p', '${kxi_port_rt}', '-in', '/s/in', '-out', '/s/out', '-cp',
       '/s/state', '-size', '${kxi_rt_replicas}', '-limit', '${kxi_rt_limit}',
       '-time', '${kxi_rt_time}', '-disk', '${kxi_rt_disk}'
     ]
+    env_file:
+      - license.env
     environment:
-      - KDB_K4LICENSE_B64 # K4 Licenses
-      #- KDB_LICENSE_B64 # KC Licenses
       - RT_EXPORT_METRIC="0"
       - RT_TOPIC_PREFIX=rt-
       - RT_EXTERN_PREFIX=rt-
@@ -161,14 +160,15 @@ services:
     restart: unless-stopped
     networks: [kx]
     volumes:
-      - logs_rt:/s
+      - ${kxi_dir_data_logs_rt}:/s
 
   # Sidecars for gathering metrics. Can be removed if not needed.
   rc-sidecar:
     image: ${kxi_sidecar}
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    env_file:
+      - license.env
     environment:
-      - KDB_K4LICENSE_B64 # K4 Licenses
-      #- KDB_LICENSE_B64 # KC Licenses
       - KXI_CONFIG_FILE=/sidecar-cfg/rc-config.json
       - KXI_LOG_CONFIG=/sidecar-cfg/qlog.json
     volumes:
@@ -177,9 +177,10 @@ services:
     networks: [kx]
   sm-sidecar:
     image: ${kxi_sidecar}
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    env_file:
+      - license.env
     environment:
-      - KDB_K4LICENSE_B64 # K4 Licenses
-      #- KDB_LICENSE_B64 # KC Licenses
       - KXI_CONFIG_FILE=/sidecar-cfg/sm-config.json
       - KXI_LOG_CONFIG=/sidecar-cfg/qlog.json
     volumes:
@@ -188,9 +189,10 @@ services:
     networks: [kx]
   rt-sidecar:
     image: ${kxi_sidecar}
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    env_file:
+      - license.env
     environment:
-      - KDB_K4LICENSE_B64 # K4 Licenses
-      #- KDB_LICENSE_B64 # KC Licenses
       - KXI_CONFIG_FILE=/sidecar-cfg/rt-config.json
       - KXI_LOG_CONFIG=/sidecar-cfg/qlog.json
     volumes:
@@ -199,9 +201,10 @@ services:
     networks: [kx]
   agg-sidecar:
     image: ${kxi_sidecar}
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    env_file:
+      - license.env
     environment:
-      - KDB_K4LICENSE_B64 # K4 Licenses
-      #- KDB_LICENSE_B64 # KC Licenses
       - KXI_CONFIG_FILE=/sidecar-cfg/agg-config.json
       - KXI_LOG_CONFIG=/sidecar-cfg/qlog.json
     volumes:

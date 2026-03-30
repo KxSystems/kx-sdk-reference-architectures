@@ -50,7 +50,7 @@ This chart deploys the Insights Database components to allow a client to ingest 
   ```yaml
   imagePullSecrets:
   - name: kx-pull-secret
-  
+
   # You must set your license name. Default is 'kc.lic'
   # Available types are:
   #  - kc.lic
@@ -121,10 +121,12 @@ The instructions above deploy a minimal database with a trade table defined in t
 
 1. Create your own assembly file `myassembly.yaml` in base directory of the `kxi-db` chart. Full info on creating database configurations [here](https://code.kx.com/insights/microservices/database/configuration/assembly/database.html)
 1. Update your `myvalues.yaml` to define the database configuration you wish to deploy
+
     ```
     ...
     assembly:
       filename: myassembly.yaml
     ...
     ```
+
 1. Deploy your database as normal detailed [here](#deploying).

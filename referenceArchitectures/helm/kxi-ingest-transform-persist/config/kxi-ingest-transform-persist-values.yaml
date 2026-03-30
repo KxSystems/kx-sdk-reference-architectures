@@ -55,14 +55,14 @@ kxi-db:
       storageClassName: "fsx-lustre"
       # Size of the HDB Tier 3 persistent storage
       size: "2Gi"
-       
-  # Defines the RT stream name associated with the deployed InsightsDB instance. 
+
+  # Defines the RT stream name associated with the deployed InsightsDB instance.
   # With prefix must match the deployed name of the RT stream minus replica number
   # Associated RT Stream pods 'rt-kxi-itp-<REPLICA-NO>'
   stream:
     prefix: "rt-"
     name: "kxi-itp"
-      
+
   kxiDa:
     # Defines the name and port of the RC to allow the data to be accessed via queries
     # This must be set to the appropriate full FQDN RC service and port
@@ -71,12 +71,10 @@ kxi-db:
 
 kxi-rt:
   <<: *common_values
-  
+
   persistence:
     # Capacity of claim.
     capacity: 2Gi
 
 kxi-sp:
   <<: *common_values
-
-  

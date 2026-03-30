@@ -319,10 +319,10 @@ The `kxi-sharded-databases` reference architecture deployment can be deleted wit
 
 ```bash
 helm delete $RELEASENAME -n $NAMESPACE
-helm delete $RELEASENAME_EXCH1 -n $NAMESPACE 
-helm delete $RELEASENAME_EXCH2 -n $NAMESPACE 
-helm delete $RELEASENAME_TENANT1 -n $NAMESPACE 
-helm delete $RELEASENAME_TENANT2 -n $NAMESPACE 
+helm delete $RELEASENAME_EXCH1 -n $NAMESPACE
+helm delete $RELEASENAME_EXCH2 -n $NAMESPACE
+helm delete $RELEASENAME_TENANT1 -n $NAMESPACE
+helm delete $RELEASENAME_TENANT2 -n $NAMESPACE
 ```
 
 By default the policy is to not delete associated volumes to allow it to be redeployed in the future and retain the data. If necessary these should be manually managed and deleted by the user.

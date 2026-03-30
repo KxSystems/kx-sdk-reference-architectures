@@ -23,7 +23,7 @@ spec:
       echo "Testing Service Gateway HTTP endpoint..."
       SERVICE_NAME="{{ .Release.Name }}-kxi-gw-sg"
       HTTP_PORT=8080
-      
+
       # Wait for service to be ready
       echo "Waiting for service ${SERVICE_NAME} to be ready..."
       echo "Endpoint: http://${SERVICE_NAME}:${HTTP_PORT}/meta"
@@ -39,10 +39,9 @@ spec:
         echo "Attempt $i/30: Service not ready, waiting..."
         sleep 2
       done
-      
+
       # Test HTTP endpoint
       echo "Testing HTTP endpoint connectivity..."
       # TODO
-      
-      echo "Service Gateway test completed successfully"
 
+      echo "Service Gateway test completed successfully"

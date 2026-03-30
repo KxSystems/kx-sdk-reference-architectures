@@ -1,12 +1,14 @@
 # Ingest and Persist - RT Based Reference Architecture
 
 ## Description
-In this reference architecture deployment, the use case is ‘Ingest and Persist’ and will utilise the kxi-db, kxi-gw and kxi-rt microservices.
+
+In this reference architecture deployment, the use case is ‘Ingest and Persist’ and will utilize the kxi-db, kxi-gw and kxi-rt microservices.
 
 ## Architecture
+
 - A kxi-db encompassing the core elements of the InsightsDB (kxi-da, kxi-sm) which can ingest and persist data
 - A kxi-rt as the message bus to log the ingested data and publish to the kxi-db component
-- A kxi-gw (kxi-rc, kxi-agg, kxi-gw) used to query the data from the kxi-db 
+- A kxi-gw (kxi-rc, kxi-agg, kxi-gw) used to query the data from the kxi-db
 
 ![kxi-db chart](../../../img/kxi-ingest-persist-arch.png)
 
@@ -14,6 +16,7 @@ In this reference architecture deployment, the use case is ‘Ingest and Persist
 
 1. Latest versions of `docker` and `docker compose` installed
 1. Authentication details to Downloads portal for Kx image repositories
+
    ```bash
    KX_USER=....
    KX_PASS=....
@@ -22,26 +25,37 @@ In this reference architecture deployment, the use case is ‘Ingest and Persist
 
 1. A KX License available
 
-
 ### Setup and Configuration
 
 1. Login to downloads portal
+
    ```bash
    docker login $KX_REGISTRY -u $KX_USER -p $KX_PASS
    ```
+
 1. Store the License as environment variable
 
    (_Contact KX to get a license_)
+
    ```bash
    # KC Licenses
    export KDB_LICENSE_B64=$(base64 path-to/kc.lic)
    # K4 Licenses
    # export KDB_K4LICENSE_B64=$(base64 path-to/k4.lic)
    ```
-   Check License name and use the appropriate environment variable name. If using `k4.lic` license, update the docker yaml environmental variable to match.
 
-1. **Volumes**  
-   `db`, `logs` and `logs_rt` use Docker **named volumes** (persist across container restarts). `config`, `packages` and `sidecar_cfg` are **bind-mounted** from the host (see `.env`: `kxi_dir_config`, `kxi_dir_pkgs`, `kxi_dir_sidecar_cfg`). Ensure `./config` exists with assembly and other files. To remove named volumes (e.g. for a clean slate), run `docker compose -f kxi-ingest-persist.yaml down -v`.
+   Check License name and use the appropriate environment variable name. If using `k4.lic` license, update the `license.env` file under the docker reference architecture
+
+1. **Volumes**
+   All volumes are **bind-mounted**, the `config`, `packages` and `sidecar_cfg` are used for configuration (see `.env`: `kxi_dir_config`, `kxi_dir_pkgs`, `kxi_dir_sidecar_cfg`).
+
+   The `db`, `logs` and `logs_rt` are for the database and write ahead log. It is necessary to create these before running and ensure their permissions are available to the user `nobody` (65534).
+
+   ```bash
+   # Run from .../referenceArchitectures/docker/kxi-ingest-persist
+   mkdir -p data/db data/logs data/logs_rt
+   chmod -R  777 ./data
+   ```
 
 ## Quickstart
 
@@ -99,7 +113,7 @@ r:h(`.kxi.getData;enlist[`table]!enlist`taxi;`;()!())
 @[;1]h(`.kxi.qsql; enlist[`query]!enlist"select vendor,pickup,dropoff from taxi";`;()!())
 ```
 
-## Packages and Custom Code 
+## Packages and Custom Code
 
 The SDK supports injecting custom code into the `kxi-db` through packages via the `KX_PACKAGES` environment variable or custom q scripts via the `KXI_CUSTOM_FILE` env file. These can be defined in the `kxi-da` or the `kxi-agg` services with examples for both in these reference architectures.
 
@@ -124,7 +138,7 @@ curl "http://localhost:8080/example.daAPI?table=taxi;column=fare;multiplier=10"
 ```q
 h:hopen 5050 // SG Port
 // Query .example.daAPI
-r:h(`.example.daAPI;enlist[`table`column`multiplier]!enlist`taxi;`fare;10;`;()!())
+r:h(`.example.daAPI;(`table`column`multiplier)!(`taxi;`fare;10);`;()!());
 // Display playload
 r 1
 ```
@@ -137,8 +151,7 @@ Code pushed to the environment variable `KXI_CUSTOM_FILE` can be deployed to the
 
 The [kxi-ingest-persist.yaml](./kxi-ingest-persist.yaml) docker compose file includes the necessary sidecars to provide metric data for the running services. These are exposed inside the docker `kx` network.
 
-A metrics stack can be launched to view and monitor metrics and utilise grafana to build operational dashboards from these metrics.
-
+A metrics stack can be launched to view and monitor metrics and utilize grafana to build operational dashboards from these metrics.
 
 ```bash
 # Create prometheus data directory if it doesn't exist
@@ -148,7 +161,8 @@ A metrics stack can be launched to view and monitor metrics and utilise grafana 
 # Run from the ../docker/metrics directory
 docker compose -f compose-metrics.yaml up
 ```
-Prometheus will be available on the server running the docker instance at [http://localhost:9090](http://localhost:9090). Grafana will be available at (http://localhost:3000)[http://localhost:3000].
+
+Prometheus will be available on the server running the docker instance at [http://localhost:9090](http://localhost:9090). Grafana will be available at [<http://localhost:3000](http://localhost:3000>).
 
 ## Further Reading
 

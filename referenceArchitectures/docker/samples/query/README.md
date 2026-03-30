@@ -1,16 +1,18 @@
 # Query samples for kdb SDK deployments
 
-# Introduction
+## Introduction
 
 This directory contains examples of querying InsightsDB using the [kdb Insights Python API](https://code.kx.com/insights/api/kxi-python/index.html). It offers the capacity to query with standard python libraries `requests` and with the KX provided [`kxi` library](https://code.kx.com/insights/api/kxi-python/index.html) offering quickstart publish, query and subscribe APIs.
 
-### Pre-requisite
+## Pre-requisite
 
 1. The InsightsDB has been deployed
 1. The `taxi` table contains recent data
-  - If this is not the case run one of the publishing samples
-1. Suitable puython environment initialised
-    
+
+- If this is not the case run one of the publishing samples
+
+1. Suitable python environment initialized.
+
     ```bash
     # Create and activate a python virtualenv
     python3 -m venv ~/.venv/my_venv
@@ -24,7 +26,7 @@ This directory contains examples of querying InsightsDB using the [kdb Insights 
 
 ## Query with `kxi` kdb Insights python library
 
-The query sample file `query_kxi.py` can be run to query a running instance with `taxi` data. 
+The query sample file `query_kxi.py` can be run to query a running instance with `taxi` data.
 
 ```bash
 python3 query_kxi.py
@@ -40,10 +42,10 @@ Please note, to allow SQL API calls the `KXI_ALLOWED_SBX_APIS` environment varia
 
 ## Query with python `requests` library
 
-The query sample file `query_requests.py` can be run to query a running instance with `taxi` data. 
+The query sample file `query_requests.py` can be run to query a running instance with `taxi` data.
 
 ```bash
 python3 query_requests.py
 ```
 
-The `query_requests.py` sample queries the `http://localhost:8080/data` endppoint routing to the [getData API](https://code.kx.com/insights/api/kxi-python/query.html#get_data) and prints a subset of the results to the terminal.
+The `query_requests.py` sample queries the `http://localhost:8080/data` endpoint routing to the [getData API](https://code.kx.com/insights/api/kxi-python/query.html#get_data) and prints a subset of the results to the terminal.

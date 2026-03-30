@@ -78,8 +78,8 @@ kxi-gw:
     replicaCount: 1
 
     # Allows for custom code to be loaded into the Aggregator specifically for UDAs typically deployed in a kxi-db chart.
-    # If customCode.configMap is populated there should be a configmap deployed by that name and it will be mounted into the Aggregator
-    # The entrypoint should be the name of the file which is executed to load the custom code
+    # If customCode.configMap is populated there should be a configmap deployed by that name and it will be mounted into the Aggregator.
+    # The entrypoint should be the name of the file which is executed to load the custom code.
     # More information can be found here: https://code.kx.com/insights/1.15/microservices/database/configuration/uda.html#load-uda
     customCode:
       configMap: ""
@@ -117,8 +117,8 @@ kxi-db:
   # More info on lateData - https://code.kx.com/insights/microservices/database/query/late-data.html#configuring-late-data
   lateData: false
 
-  # Defines the RT stream name associated with the deployed InsightsDB instance. 
-  # With prefix must match the deployed name of the RT stream minus replica number 
+  # Defines the RT stream name associated with the deployed InsightsDB instance.
+  # With prefix must match the deployed name of the RT stream minus replica number
   stream:
     prefix: "rt-"
     name: ""

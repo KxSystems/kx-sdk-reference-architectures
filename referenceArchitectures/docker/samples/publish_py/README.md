@@ -15,7 +15,7 @@ python3 -m venv ~/.venv/my_venv
 source ~/.venv/my_venv/bin/activate
 ```
 
-Update pip andinstall deps
+Update pip and install deps
 
 ```bash
 pip install --upgrade pip

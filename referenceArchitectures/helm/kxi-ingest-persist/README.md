@@ -1,14 +1,15 @@
 # Ingest and Persist - RT Based Reference Architecture Chart
 
 ## Description
-In this reference architecture the key use case solved is ‘Ingest and Persist’. It will utilise the kxi-db, kxi-gw and kxi-rt charts
+
+In this reference architecture the key use case solved is ‘Ingest and Persist’. It will utilize the kxi-db, kxi-gw and kxi-rt charts
 
 ## Architecture
 
 The implementation consists of:
 
-- A kxi-db chart encompassing the core elements of the InsightsDB which can ingest and persist data 
-- A kxi-rt chart as the message bus to log the ingested data and publish to the kxi-db chart 
+- A kxi-db chart encompassing the core elements of the InsightsDB which can ingest and persist data
+- A kxi-rt chart as the message bus to log the ingested data and publish to the kxi-db chart
 - A kxi-gw chart used to query the data from the kxi-db chart
 
 ![kxi-db chart](../../../img/kxi-ingest-persist-arch.png)
@@ -21,22 +22,28 @@ The implementation consists of:
 1. `helm` command installed on your local machine
 1. A [Distributed storage solution](../../README.md#kubernetes-prerequisites) offering RWM access level. (Kubernetes docs for more [here](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes))
 1. Authentication details to Kx image repositories
+
     ```bash
     KX_USER=....
     KX_PASS=....
     KX_REGISTRY="portal.dl.kx.com"
     NAMESPACE="kxi-sdk"
     ```
-1.  `imagePullSecrets` setup on your cluster
+
+1. `imagePullSecrets` setup on your cluster
+
     ```bash
     kubectl create secret docker-registry kx-pull-secret --docker-username=$KX_USER --docker-password=$KX_PASS --docker-server=$KX_REGISTRY -n $NAMESPACE
     ```
+
 1. A license secret
     _Contact KX to get a license_
+
     ```bash
     LIC_FILE=./kc.lic
     kubectl create secret generic kx-license --from-file=license=$LIC_FILE -n $NAMESPACE
     ```
+
 1. A deployment specific values file associated with configurations relative to your deployment. Available configurations are documented in the chart and can be displayed by running
 
     ```bash
@@ -46,7 +53,7 @@ The implementation consists of:
 
     A sample config file is [provided](config/kxi-ingest-persist-values.yaml) but should be reviewed and updated to your configuration.
         - **NOTE:** Please ensure to set the `storageClassName` appropriately
-        
+
 ### Deploying
 
 The umbrella chart deploys an instance of `kxi-db` InsightsDB chart and the `kxi-rt` RT message bus chart to allow data to be streamed into the database. As detailed in the [kxi-rt chart](../../../kxCharts/kxi-rt/README.md#rt-streams-naming-conventions-and-discovery), the naming convention for the deployment will be related to the `$RELEASENAME` used to deploy the chart, thus when prefixed with `rt-` deploys to `rt-$RELEASENAME`. Configuration for the RT stream is in the sample [config file](config/kxi-ingest-persist-values.yaml). The stream names are also illustrated in the architecture diagram. It is critical these are kept in sync to ensure data flows into the database.
@@ -105,7 +112,6 @@ unzip rt.$version.qpk
 
 Port forward the RT push server port locally
 
-
 ```bash
 kubectl port-forward service/rt-$RELEASENAME-0 -n $NAMESPACE 5002 &
 ```
@@ -115,7 +121,7 @@ Publish data into RT.
 ```q
 // Publish data from q - KDB+/KDB-X
 
-// Set rt_endpoint to rt service 'push' port 
+// Set rt_endpoint to rt service 'push' port
 rt_endpoint:":localhost:5002";
 params:(`path`stream`publisher_id`cluster)!("/tmp/rt";"kxi";"pub1";enlist(rt_endpoint));
 p:.rt.pub params;
@@ -125,8 +131,7 @@ p(`.b; `trade; data)
 
 > **_NOTE:_**  If RT has been deployed with `externalService.enabled` is set to `true` a `rt-$RELEASENAME-e` service is exposed. This can be configured as `NodePort` or `LoadBalancer`. In this configuration, data can be pushed direct to that `rt_endpoint` without port forwarding.
 
-Once data has been publish to the application, it can be [queried](#query-data-out).
-
+Once data has been publish to the application, it can be [queried](#querying-data).
 
 #### Querying data
 
@@ -156,12 +161,13 @@ Now that `$GW_URL` is configured you can query data:
 curl -X GET -H 'Content-Type: application/json' http://$GW_URL/data -d '{"table":"trade"}'
 ```
 
-### Deploying with your own database assembly definition 
+### Deploying with your own database assembly definition
 
 The instructions above deploys reference architecture with a minimal database with a trade table defined in the [assembly.yaml](../../../kxCharts/kxi-db/assembly.yaml) under `kxCharts/kxi-db/` directory. When you're ready to deploy your own assembly workload with your own schemas, you can provide your own database yaml assembly file.
 
-1. Create your own assembly file `myassembly.yaml` in `kxCharts/kxi-db/` directory. Full info on creating database configurations [here](https://code.kx.com/insights/microservices/database/configuration/assembly/database.html)
-1. Update the deployment [config](config/kxi-ingest-persist-values.yaml) to define the database configuration you wish to deploy
+1. Create your own assembly file `myassembly.yaml` in `kxCharts/kxi-db/` directory. Full info on creating database configurations [here](https://code.kx.com/insights/microservices/database/configuration/assembly/database.html).
+1. Update the deployment [config](config/kxi-ingest-persist-values.yaml) to define the database configuration you wish to deploy.
+
     ```
     ...
     kxi-db:

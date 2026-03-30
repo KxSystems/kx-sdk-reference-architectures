@@ -25,3 +25,7 @@ kx.lic
 Session.vim
 
 prometheus-data*
+
+# Docker reference architecture data (bind-mounted db, logs, etc.)
+referenceArchitectures/docker/kxi-ingest-persist/data/
+referenceArchitectures/docker/kxi-ingest-transform-persist/data/

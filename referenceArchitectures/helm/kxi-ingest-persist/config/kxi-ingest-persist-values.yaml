@@ -55,18 +55,18 @@ kxi-db:
       storageClassName: "fsx-lustre"
       # Size of the HDB Tier 3 persistent storage
       size: "2Gi"
-    
-  # Defines the RT stream name associated with the deployed InsightsDB instance. 
+
+  # Defines the RT stream name associated with the deployed InsightsDB instance.
   # With prefix must match the deployed name of the RT stream minus replica number
   # Associated RT Stream pods 'rt-kxi-<REPLICA-NO>'
   stream:
     prefix: "rt-"
     name: "kxi"
-  
+
   kxiDa:
     # Defines the name and port of the RC to allow the data to be accessed via queries
     # This must be set to the appropriate full FQDN RC service and port
-    # When deploying the chart this should be set to `$RELEASENAME-kxi-gw-rc:5040 
+    # When deploying the chart this should be set to `$RELEASENAME-kxi-gw-rc:5040
     # where $RELEASENAME is the name the chart is deployed as
     rcAddr: "kxi-kxi-gw-rc:5040"
 
