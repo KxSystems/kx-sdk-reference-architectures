@@ -21,10 +21,10 @@ spec:
     - |
       set -e
       echo "Checking if all kxi-api pods are ready..."
-      
+
       RELEASE_NAME="{{ .Release.Name }}"
       NAMESPACE="{{ .Release.Namespace }}"
-      
+
       # Check kxi-gw pods
       echo "Checking kxi-gw pods..."
       SG_PODS=$(kubectl get pods -n ${NAMESPACE} -l app=${RELEASE_NAME}-kxi-gw-sg --field-selector=status.phase=Running --no-headers 2>/dev/null | wc -l || echo "0")
@@ -34,7 +34,7 @@ spec:
         exit 1
       fi
       echo "SUCCESS: Service Gateway pods are running"
-      
+
       # Check kxi-sp pods
       echo "Checking kxi-sp pods..."
       SP_PODS=$(kubectl get pods -n ${NAMESPACE} -l app.kubernetes.io/name=kxi-sp,app.kubernetes.io/instance=${RELEASE_NAME} --field-selector=status.phase=Running --no-headers 2>/dev/null | wc -l || echo "0")
@@ -45,6 +45,5 @@ spec:
         exit 1
       fi
       echo "SUCCESS: Stream Processor pods are running (${SP_PODS}/${SP_REPLICAS})"
-      
-      echo "All kxi-api pods are ready!"
 
+      echo "All kxi-api pods are ready!"

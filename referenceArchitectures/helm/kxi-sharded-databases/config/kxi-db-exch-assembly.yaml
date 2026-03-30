@@ -52,7 +52,7 @@ elements:
   dap:
     instances:
       dap:
-        mountList: 
+        mountList:
           - rdb
           - idb
           - hdb

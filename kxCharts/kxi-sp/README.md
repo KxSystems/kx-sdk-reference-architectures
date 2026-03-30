@@ -5,6 +5,7 @@
 This chart deploys the Insights SP component, a high-performance, scalable, flexible stream processing system implemented in q. This chart is deployable independently of InsightsDB.
 
 ## Running on Kubernetes
+
 ### Prerequisites
 
 1. A working Kubernetes cluster with appropriate access to deploy applications
@@ -23,6 +24,7 @@ This chart deploys the Insights SP component, a high-performance, scalable, flex
     ```bash
     kubectl create secret docker-registry kx-pull-secret --docker-username=$KX_USER --docker-password=$KX_PASS --docker-server=$KX_REGISTRY -n $NAMESPACE
     ```
+
 1. A license secret
 
     _Contact KX to get a license_
@@ -40,10 +42,11 @@ This chart deploys the Insights SP component, a high-performance, scalable, flex
     ```
 
     A minimum `myvalues.yaml` configuration would contain
+
       ```yaml
       imagePullSecrets:
       - name: kx-pull-secret
-      
+
       # You must set your license name. Default is 'kc.lic'
       # Available types are:
       #  - kc.lic
@@ -51,7 +54,6 @@ This chart deploys the Insights SP component, a high-performance, scalable, flex
       #  - kx.lic
       kxLicenseName: kc.lic
       ```
-
 
 ### Deploying
 
@@ -62,6 +64,7 @@ VALUESFILE=myvalues.yaml
 NAMESPACE="kxi-sdk"
 helm install $RELEASENAME . -f $VALUESFILE -n $NAMESPACE
 ```
+
 Note: If `$RELEASENAME` is set as `kxi-sp` resources will be named `kxi-sp`, using the `helm` default `fullname` template.
 
 ### Upgrading/updating config

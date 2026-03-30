@@ -5,11 +5,11 @@ syms:`$("EUR/USD";"USD/JPY";"GBP/USD";"USD/CHF";"AUD/USD") /ccy pairs
 shard:last -3_ "-" vs string .z.h
 exchs:`$"SP_",shard
 sides:`B`S
-prices:syms!45.15 191.10 178.50 128.04 341.30 /starting prices 
+prices:syms!45.15 191.10 178.50 128.04 341.30 /starting prices
 n:10 /number of rows per update
-getmovement:{[s] rand[0.0001]*prices[s]} /get a random price movement 
+getmovement:{[s] rand[0.0001]*prices[s]} /get a random price movement
 /generate trade price
-getprice:{[s] prices[s]+:rand[1 -1]*getmovement[s]; prices[s]} 
+getprice:{[s] prices[s]+:rand[1 -1]*getmovement[s]; prices[s]}
 
 .qsp.run
     .qsp.read.fromCallback[`publishT]

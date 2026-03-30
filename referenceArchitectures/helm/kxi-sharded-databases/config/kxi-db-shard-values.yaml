@@ -13,7 +13,7 @@
 kxi-db:
   #  common values from anchors on the top
   <<: *common_values
-  
+
   db:
     # Intraday persistent storage configuration
     idb:
@@ -42,7 +42,7 @@ kxi-db:
     rcAddr: "kxi-api-kxi-gw-rc:5040"
 
     # Default common environment variables for the DA
-    # Additional ENVs can be added and these overridden in custom values files. 
+    # Additional ENVs can be added and these overridden in custom values files.
     # If overriding 'envs', ensure you include all the default values.
     envs:
       - name: KXI_LOG_FORMAT
@@ -66,7 +66,7 @@ kxi-db:
       # More info: https://code.kx.com/insights/microservices/rt/quickstart/docker-compose.html#running-a-one-node-rt
       - name: RT_REPLICAS
         value: "1"
-  
+
 # Values for kxi-rt sub-chart
 kxi-rt:
 #  common values from anchors on the top
@@ -90,7 +90,7 @@ kxi-rt:
     enabled: false
     # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
     # type: LoadBalancer
-  
+
   persistence:
     # Capacity of claim.
     capacity: 2Gi

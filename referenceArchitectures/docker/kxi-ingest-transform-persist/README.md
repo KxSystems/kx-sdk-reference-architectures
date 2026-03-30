@@ -1,9 +1,11 @@
 # Ingest, Transform and Persist - SP Based Reference Architecture
 
 ## Description
-In this reference architecture deployment blueprint, the Use Case is ‘Ingest, Transform and Persist’ and will utilise the kxi-db, kxi-gw, kxi-rt and kxi-sp microservices. The goal of this reference architecture is to highlight a typical deployment of the SDK components with the Stream Processor as a means to read in and transform data. for more information on how to utilise the SP within SDK workload please review the [documentation](https://code.kx.com/insights/1.17/microservices/stream-processor/index.html).
+
+In this reference architecture deployment blueprint, the Use Case is ‘Ingest, Transform and Persist’ and will utilize the kxi-db, kxi-gw, kxi-rt and kxi-sp microservices. The goal of this reference architecture is to highlight a typical deployment of the SDK components with the Stream Processor as a means to read in and transform data. for more information on how to utilize the SP within SDK workload please review the [documentation](https://code.kx.com/insights/1.17/microservices/stream-processor/index.html).
 
 ## Architecture
+
 - A kxi-db encompassing the core elements of the InsightsDB (kxi-da, kxi-sm) which can ingest and persist data
 - A kxi-rt as the message bus to log the ingested data and publish to the kxi-db component
 - A kxi-gw (kxi-rc, kxi-agg, kxi-gw) used to query the data from the kxi-db
@@ -15,6 +17,7 @@ In this reference architecture deployment blueprint, the Use Case is ‘Ingest, 
 
 1. Latest versions of `docker` and `docker compose` installed
 1. Authentication details to Downloads portal for Kx image repositories
+
    ```bash
    KX_USER=....
    KX_PASS=....
@@ -26,21 +29,36 @@ In this reference architecture deployment blueprint, the Use Case is ‘Ingest, 
 ### Setup and Configuration
 
 1. Login to downloads portal
+
    ```bash
    docker login $KX_REGISTRY -u $KX_USER -p $KX_PASS
    ```
+
 1. Store the License as environment variable
 
    (_Contact KX to get a license_)
+
    ```bash
    # KC Licenses
    export KDB_LICENSE_B64=$(base64 path-to/kc.lic)
    # K4 Licenses
    # export KDB_K4LICENSE_B64=$(base64 path-to/k4.lic)
    ```
-   Check License name and use the appropriate environment variable name. If using `k4.lic` license, update the docker yaml environmental variable to match.
 
-1. **Volumes**  
+   Check License name and use the appropriate environment variable name. If using `k4.lic` license, update the `license.env` file under the docker reference architecture
+
+1. **Volumes**
+   All volumes are **bind-mounted**, the `config`, `packages` and `sidecar_cfg` are used for configuration (see `.env`: `kxi_dir_config`, `kxi_dir_pkgs`, `kxi_dir_sidecar_cfg`).
+
+   The `db`, `logs`, `logs_rt` and `sp` are for the database and write ahead log. It is necessary to create these before running and ensure their permissions are available to the user `nobody` (65534).
+
+   ```bash
+   # Run from .../referenceArchitectures/docker/kxi-ingest-persist
+   mkdir -p data/db data/logs data/logs_rt data/sp
+   chmod -R  777 ./data
+   ```
+
+1. **Volumes**
    `db`, `logs`, `logs_rt` and `sp` use Docker **named volumes** (persist across container restarts). `config`, `packages` and `sidecar_cfg` are **bind-mounted** from the host (see `.env`: `kxi_dir_config`, `kxi_dir_pkgs`, `kxi_dir_sidecar_cfg`). Ensure `./config` exists with assembly and other files. To remove named volumes (e.g. for a clean slate), run `docker compose -f kxi-ingest-transform-persist.yaml down -v`.
 
 ## Quickstart
@@ -62,7 +80,7 @@ docker compose -f kxi-ingest-transform-persist.yaml logs --no-log-prefix 2>&1 | 
 
 ## Ingest and Transform using SP
 
-When launching the docker compose file, as well as the database it also launches an Stream Processor workload which does a bulk read data from S3 and write to an Insights SDK Database. Arbitrary data files can be read from S3, transformed and written to downstream consumers from the Stream Processor. 
+When launching the docker compose file, as well as the database it also launches an Stream Processor workload which does a bulk read data from S3 and write to an Insights SDK Database. Arbitrary data files can be read from S3, transformed and written to downstream consumers from the Stream Processor.
 
 A pipeline definitions is already created in [`ingest.q`](ingest.q).  It does the following;
 
@@ -77,11 +95,14 @@ A pipeline definitions is already created in [`ingest.q`](ingest.q).  It does th
 ### Ingestion status checks
 
 You can check status of the pipeline using the command.
-```
+
+```cmd
 curl http://localhost:6000/details
 ```
+
 This outputs a JSON payload of the form
-```
+
+```json
 {
   "state": "RUNNING",
   "error": "",
@@ -106,13 +127,13 @@ This outputs a JSON payload of the form
 
 The pipeline has completed when the state field is set to `FINISHED`. This indicates all of the data has been written to the database and successfully ingested. You can check the ingest session in the database using the following command.
 
-```
+```cmd
 curl http://localhost:10001/ingest
 ```
 
 The session is marked with a status of pending while the SP pipeline is writing data.
 
-```
+```json
 [
   {
     "name": "pipeline-482f128ffe-0",
@@ -139,7 +160,7 @@ The session is marked with a status of pending while the SP pipeline is writing 
 
 This updates to processing when the database is ingesting the data.
 
-```
+```json
 [
   {
     "name": "pipeline-482f128ffe-0",
@@ -210,7 +231,8 @@ You can query the first 30 minutes of the dataset to verify the ingestion and tr
 ```bash
 curl -X POST http://localhost:8080/data -H "Content-Type: application/json" -H "Accept: application/json" -d '{table: "taxi",startTS: "2021-12-01T00:00:00.0", endTS: "2021-12-01T00:30:00.0" }'
 ```
-```
+
+```json
 {
   "header": {
     "rcvTS": "2024-11-22T12:15:22.941000000",
@@ -267,7 +289,7 @@ r:h(`.kxi.getData;enlist[`table]!enlist`taxi;`;()!())
 @[;1]h(`.kxi.qsql; enlist[`query]!enlist"select vendor,pickup,dropoff from taxi";`;()!())
 ```
 
-## Packages and Custom Code 
+## Packages and Custom Code
 
 The SDK supports injecting custom code into the `kxi-db` through packages via the `KX_PACKAGES` environment variable or custom q scripts via the `KXI_CUSTOM_FILE` env file. These can be defined in the `kxi-da` or the `kxi-agg` services with examples for both in these reference architectures.
 
@@ -283,7 +305,7 @@ res:h(`.kxi.getMeta;()!();`;enlist[`version]!enlist 3);
 res[1][`api]
 ```
 
-This allows the user develop, build, version and publish a extensive API as part of his SDK reference application. API's can be quiered in the same way as `.kxi.getData` is queried.
+This allows the user develop, build, version and publish a extensive API as part of his SDK reference application. API's can be queried in the same way as `.kxi.getData` is queried.
 
 ```bash
 curl "http://localhost:8080/example.daAPI?table=taxi;column=fare;multiplier=10"

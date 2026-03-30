@@ -48,7 +48,7 @@ This chart deploys the Insights Gateway components to allow a client to query [I
     ```yaml
     imagePullSecrets:
     - name: kx-pull-secret
-    
+
     # You must set your license name. Default is 'kc.lic'
     # Available types are:
     #  - kc.lic

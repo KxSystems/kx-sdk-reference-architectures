@@ -60,6 +60,7 @@ This should follow
 
 - Having a secret with the name `kx-license` and the B64 data field `license`
     _Contact KX to get a license_
+
     ```bash
     LIC_FILE=./kc.lic
     kubectl create secret generic kx-license --from-file=license=$LIC_FILE -n $NAMESPACE
@@ -69,10 +70,10 @@ This should follow
 
 ```bash
 ...
-          volumeMounts:  
+          volumeMounts:
             - name: insights-kx-license
               mountPath: /opt/kx/lic
-              readOnly: true      
+              readOnly: true
       volumes:
         - name: insights-kx-license
           secret:

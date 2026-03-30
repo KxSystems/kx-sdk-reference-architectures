@@ -17,6 +17,7 @@ spec:
       annotations:
         checksum/log: {{ include ( print $.Template.BasePath "/qlogconfigmap.yaml" ) . | sha256sum }}
         checksum/config: {{ include ( print $.Template.BasePath "/kxi-agg-sidecarconfigmap.yaml" ) . | sha256sum }}
+        helm.sh/revision: {{ .Release.Revision | quote }}
         {{- with .Values.kxiAgg.podAnnotations }}
         {{- tpl ( toYaml . ) $ | nindent 8 }}
         {{- end }}
@@ -66,12 +67,12 @@ spec:
               value: {{ include "kxi-gw.fullname" . }}-rc:{{ .Values.kxiRc.service.port }}
             - name: KXI_LOG_CONFIG
               value: /opt/kx/config/qlog.json
-            {{- with .Values.kxiAgg.envs }}
-            {{- toYaml . | nindent 12 }}
-            {{- end }}
             {{- if ( .Values.kxiAgg.customCode.configMap | empty | not ) }}
             - name: KXI_CUSTOM_FILE
               value: /opt/kx/packages/{{ .Values.kxiAgg.customCode.entry }}
+            {{- end }}
+            {{- with .Values.kxiAgg.envs }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           volumeMounts:
             {{- with .Values.kxiAgg.volumeMounts }}
@@ -143,7 +144,7 @@ spec:
         - name: {{ include "kxi-gw.fullname" . }}-log
           configMap:
             name: {{ include "kxi-gw.fullname" . }}-log
-    
+
       {{- with .Values.kxiAgg.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

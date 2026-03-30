@@ -49,4 +49,3 @@ Selector labels
 app.kubernetes.io/name: {{ include "kxi-db-shard.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
-
