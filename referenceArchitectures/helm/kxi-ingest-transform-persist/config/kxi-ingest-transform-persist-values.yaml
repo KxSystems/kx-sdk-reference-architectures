@@ -3,78 +3,82 @@
   imagePullSecrets:
     - name: kx-pull-secret
 
-  # You must set your license name. Default is 'kc.lic'
+  # -- You must set your license name. Default is `"kc.lic"`.
   # Available types are:
   #  - kc.lic
   #  - k4.lic
   #  - kx.lic
-  kxLicenseName: kc.lic
+  kxLicenseName: "kc.lic"
 
+# Values for kxi-gw sub-chart.
+# @default -- `{}`
 kxi-gw:
   <<: *common_values
 
+# Values for kxi-db sub-chart
+# @default -- `{}`
 kxi-db:
   <<: *common_values
 
-  # This defines the assembly file to be loaded into the InsightsDB.
-  # It should be on the base directory of the chart folder under `kxi-db`
-  # More info: https://code.kx.com/insights/microservices/database/configuration/assembly/database.html
   assembly:
+    # -- This defines the assembly file to be loaded into the InsightsDB.
+    # It should be on the base directory of the chart folder under `kxi-db`.
+    # More information can be found here: https://code.kx.com/insights/microservices/database/configuration/assembly/database.html
     filename: assembly.yaml
 
+  # InsightsDB storage configurations.
+  # This must be configured before deployment.
+  # @default -- `{}`
   db:
-    # Intraday persistent storage configuration
+    # Intraday persistent storage configuration.
+    # @default -- `{}`
     idb:
-      # Defines the storageClassNames for all the persistent data storage in the InsightsDB
-      # This should map to Kubernetes storageClassNames with accessMode of RWM
-      # More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+      # -- Defines the storageClassNames for all the persistent data storage in the InsightsDB.
+      # This should map to Kubernetes storageClassNames with accessMode of `RWM`.
+      # More information can be found here: https://kubernetes.io/docs/concepts/storage/storage-classes/
       storageClassName: "fsx-lustre"
-      # Size of the Intraday persistent storage
-      size: "2Gi"
-    # HDB Tier 1 persistent storage configuration
-    hdbt1:
-      # Defines the storageClassNames for all the persistent data storage in the InsightsDB
-      # This should map to Kubernetes storageClassNames with accessMode of RWM
-      # More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
-      storageClassName: "fsx-lustre"
-      # Size of the HDB Tier 1 persistent storage
-      size: "2Gi"
-    # HDB Tier 2 persistent storage configuration
-    hdbt2:
-      # Defines the storageClassNames for all the persistent data storage in the InsightsDB
-      # This should map to Kubernetes storageClassNames with accessMode of RWM
-      # More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
-      storageClassName: "fsx-lustre"
-      # Size of the HDB Tier 2 persistent storage
-      size: "2Gi"
-    # HDB Tier 3 persistent storage configuration
-    hdbt3:
-      # Defines the storageClassNames for all the persistent data storage in the InsightsDB
-      # This should map to Kubernetes storageClassNames with accessMode of RWM
-      # More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
-      storageClassName: "fsx-lustre"
-      # Size of the HDB Tier 3 persistent storage
+
+      # -- Size of the Intraday persistent storage.
       size: "2Gi"
 
-  # Defines the RT stream name associated with the deployed InsightsDB instance.
-  # With prefix must match the deployed name of the RT stream minus replica number
-  # Associated RT Stream pods 'rt-kxi-itp-<REPLICA-NO>'
+    # HDB Tier 1 persistent storage configuration.
+    # @default -- `{}`
+    hdbt1:
+      # -- Defines the storageClassNames for all the persistent data storage in the InsightsDB.
+      # This should map to Kubernetes storageClassNames with accessMode of `RWM`.
+      # More information can be found here: https://kubernetes.io/docs/concepts/storage/storage-classes/
+      storageClassName: "fsx-lustre"
+
+      # -- Size of the HDB Tier 1 persistent storage.
+      size: "2Gi"
+
+  # -- Defines the RT stream name associated with the deployed InsightsDB instance.
+  # With prefix must match the deployed name of the RT stream minus replica number.
+  # Associated RT Stream pods `rt-kxi-itp-<REPLICA-NO>`
   stream:
     prefix: "rt-"
     name: "kxi-itp"
 
+  # Configuration for the DA.
+  # @default -- `{}`
   kxiDa:
-    # Defines the name and port of the RC to allow the data to be accessed via queries
-    # This must be set to the appropriate full FQDN RC service and port
-    # This should include RELEASENAME that will be used for deployment to have final value as $RELEASENAME-kxi-gw-rc:5040
+    # -- Defines the name and port of the RC to allow the data to be accessed via queries.
+    # This must be set to the appropriate full FQDN RC service and port.
+    # This should include `RELEASENAME`` that will be used for deployment to have final value as `RELEASENAME-kxi-gw-rc:5040`
     rcAddr: "kxi-itp-kxi-gw-rc:5040"
 
+# Values for kxi-rt sub-chart
+# @default -- `{}`
 kxi-rt:
   <<: *common_values
 
+  # Configure persistence within chart.
+  # @default -- `{}`
   persistence:
-    # Capacity of claim.
+    # -- Specifies the storage capacity request for the Persistent Volume Claim.
     capacity: 2Gi
 
+# Values for kxi-sp sub-chart
+# @default -- `{}`
 kxi-sp:
   <<: *common_values

@@ -1,0 +1,47 @@
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'gateway'
+    static_configs:
+      - targets:
+          - 'kxi-gw:8081'       # GW native HTTP metrics
+          - 'rc-sidecar:8080'   # Resource Coordinator
+          - 'agg-sidecar:8080'  # Aggregator
+
+  - job_name: 'kxi-db-exch-1'
+    static_configs:
+      - targets:
+          - 'kxi-db-exch-1-rdb-sidecar:8080'
+          - 'kxi-db-exch-1-idb-sidecar:8080'
+          - 'kxi-db-exch-1-hdb-sidecar:8080'
+          - 'kxi-db-exch-1-sm-sidecar:8080'
+          - 'kxi-db-exch-1-rt-sidecar:8080'
+
+  - job_name: 'kxi-db-exch-2'
+    static_configs:
+      - targets:
+          - 'kxi-db-exch-2-rdb-sidecar:8080'
+          - 'kxi-db-exch-2-idb-sidecar:8080'
+          - 'kxi-db-exch-2-hdb-sidecar:8080'
+          - 'kxi-db-exch-2-sm-sidecar:8080'
+          - 'kxi-db-exch-2-rt-sidecar:8080'
+
+  - job_name: 'kxi-db-tenant-1'
+    static_configs:
+      - targets:
+          - 'kxi-db-tenant-1-rdb-sidecar:8080'
+          - 'kxi-db-tenant-1-idb-sidecar:8080'
+          - 'kxi-db-tenant-1-hdb-sidecar:8080'
+          - 'kxi-db-tenant-1-sm-sidecar:8080'
+          - 'kxi-db-tenant-1-rt-sidecar:8080'
+
+  - job_name: 'kxi-db-tenant-2'
+    static_configs:
+      - targets:
+          - 'kxi-db-tenant-2-rdb-sidecar:8080'
+          - 'kxi-db-tenant-2-idb-sidecar:8080'
+          - 'kxi-db-tenant-2-hdb-sidecar:8080'
+          - 'kxi-db-tenant-2-sm-sidecar:8080'
+          - 'kxi-db-tenant-2-rt-sidecar:8080'

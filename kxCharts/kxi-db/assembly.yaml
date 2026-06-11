@@ -73,14 +73,4 @@ elements:
           snap:   01:35:00 # at 1:35 AM
         retain:
           time: 2 days
-      - name: hdb2
-        mount: hdb
-        store: file:///mnt/db/hdbt2
-        retain:
-          time: 5 weeks
-      - name: hdb3
-        mount: hdb
-        store: file:///mnt/db/hdbt3
-        retain:
-          time: 3 months
     disableDiscovery: true

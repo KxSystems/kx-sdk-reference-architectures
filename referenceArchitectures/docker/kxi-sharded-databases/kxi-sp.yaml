@@ -1,0 +1,84 @@
+services:
+  controller:
+    image: ${kxi_sp_controller}
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    ports:
+      - ${kxi_port_sp_controller}:${kxi_port_sp_controller}
+    env_file:
+      - license.env
+    volumes:
+      - ${kxi_sp_controller_checkpoint}
+    command: ["-p", '${kxi_port_sp_controller}']
+    networks: [kx]
+
+  worker-trade-1:
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    image: ${kxi_sp_worker}
+    ports:
+      - ${kxi_port_sp_worker}
+    env_file:
+      - license.env
+    volumes:
+      - .:/app                            # Bind in the spec files
+      - ${kxi_sp_trade_checkpoint}
+    environment:
+      - KXI_SP_SPEC=${kx_sp_spec_trade}         # Point to the trade spec file
+      - KXI_SP_PARENT_HOST=controller:${kxi_port_sp_controller}     # Point to the parent Controller
+      - KXI_SP_ORDINAL=1
+    command: ['-p', '${kxi_port_sp_worker}']
+    networks: [kx]
+
+  worker-trade-2:
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    image: ${kxi_sp_worker}
+    ports:
+      - ${kxi_port_sp_worker}
+    env_file:
+      - license.env
+    volumes:
+      - .:/app                            # Bind in the spec files
+      - ${kxi_sp_trade_checkpoint}
+    environment:
+      - KXI_SP_SPEC=${kx_sp_spec_trade}         # Point to the trade spec file
+      - KXI_SP_PARENT_HOST=controller:${kxi_port_sp_controller}     # Point to the parent Controller
+      - KXI_SP_ORDINAL=2
+    command: ['-p', '${kxi_port_sp_worker}']
+    networks: [kx]
+
+  worker-positions-1:
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"    
+    image: ${kxi_sp_worker}
+    ports:
+      - ${kxi_port_sp_worker}
+    env_file:
+      - license.env
+    volumes:
+      - .:/app                                 # Bind in the spec files
+      - ${kxi_sp_position_checkpoint}
+    environment:
+      - KXI_SP_SPEC=${kx_sp_spec_position}     # Point to the positions spec file
+      - KXI_SP_PARENT_HOST=controller:${kxi_port_sp_controller}     # Point to the parent Controller
+      - KXI_SP_ORDINAL=3
+    command: ['-p', '${kxi_port_sp_worker}']
+    networks: [kx]
+
+  worker-positions-2:
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"    
+    image: ${kxi_sp_worker}
+    ports:
+      - ${kxi_port_sp_worker}
+    env_file:
+      - license.env
+    volumes:
+      - .:/app                                 # Bind in the spec files
+      - ${kxi_sp_position_checkpoint}
+    environment:
+      - KXI_SP_SPEC=${kx_sp_spec_position}     # Point to the positions spec file
+      - KXI_SP_PARENT_HOST=controller:${kxi_port_sp_controller}     # Point to the parent Controller
+      - KXI_SP_ORDINAL=4
+    command: ['-p', '${kxi_port_sp_worker}']
+    networks: [kx]
+
+networks:
+  kx:
+    external: true

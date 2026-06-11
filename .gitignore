@@ -5,6 +5,9 @@ Chart.lock
 # VS Code project folder
 .vscode
 
+# KDB Extension project folder
+.kx
+
 # Environments
 .venv*
 env*/
@@ -25,7 +28,13 @@ kx.lic
 Session.vim
 
 prometheus-data*
+*.license-resolved
 
 # Docker reference architecture data (bind-mounted db, logs, etc.)
 referenceArchitectures/docker/kxi-ingest-persist/data/
 referenceArchitectures/docker/kxi-ingest-transform-persist/data/
+referenceArchitectures/docker/kxi-sharded-databases/data/
+referenceArchitectures/docker/kxi-sharded-databases/spScripts/checkpoints/controller/
+referenceArchitectures/docker/kxi-sharded-databases/spScripts/checkpoints/trade/
+referenceArchitectures/docker/kxi-sharded-databases/spScripts/checkpoints/positions/
+

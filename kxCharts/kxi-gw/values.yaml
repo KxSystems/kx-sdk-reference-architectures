@@ -2,36 +2,53 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# This sets the name of the InsightsGW deployment.
+# -- This sets the name of the InsightsGW deployment.
+# Overriding Chart name.
+# Used when generating resource names.
 nameOverride: ""
 
-# This sets the full name of the InsightsGW deployment.
+# -- This sets the full name of the InsightsGW deployment.
+# Override the default fully qualified app name.
+# By default resources are named using `<.Release.Name>-<.Chart.Name>`.
+# Used when generating resource names.
 fullnameOverride: ""
 
-# This is for the secrets for pulling an image from a private repository.
-# More information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+# -- Image pull secrets to be applied to all pods within the chart.
+# For pulling an image from a private repository.
+# Refer to Image Pull Secrets https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+# @default -- `[]`
 imagePullSecrets: []
 
-# You must set your license name. Default is 'kc.lic'
+# -- You must set your license name.
 # Available types are:
-#  - kc.lic
-#  - k4.lic
-#  - kx.lic
-kxLicenseName: kc.lic
+#  - `"kc.lic"`
+#  - `"k4.lic"`
+#  - `"kx.lic"`
+kxLicenseName: "kc.lic"
 
-# Default image repository and pull settings for Insights Gateway chart components
+# -- Default image repository and pull settings for Insights Gateway chart components.
+# Refer to Images https://kubernetes.io/docs/concepts/containers/images/
+# @default -- `{}`
 image:
-  repository: portal.dl.kx.com
-  pullPolicy: IfNotPresent
+  # -- Image repository.
+  # @default -- `"portal.dl.kx.com/"`
+  repository: "portal.dl.kx.com"
 
-# Default pod security context for Insights Gateway chart components
+  # -- Image pull policy.
+  # Refer to Image Pull Policy https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy
+  pullPolicy: "IfNotPresent"
+
+# -- Default Pod Security Context for Insights Gateway chart components.
+# Refer to Pod Security Context https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+# @default -- `{}`
 podSecurityContext:
-  # 'nobody' user
   fsGroup: 65534
   runAsUser: 65534
   runAsNonRoot: true
 
-# Default security context for Insights Gateway chart components
+# -- Default security context for Insights Gateway chart components.
+# Refer to Security Context https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+# @default -- `{}`
 securityContext:
   readOnlyRootFilesystem: false
   allowPrivilegeEscalation: false
@@ -39,311 +56,413 @@ securityContext:
     drop:
       - ALL
 
-# Default Resource Coordinator configuration for Insights Gateway chart components
+# Default Resource Coordinator configuration for Insights Gateway chart components.
+# @default -- `{}`
 kxiRc:
-  # This sets overriding container image information. Use if you wish to target specific versions of the RC.
+  # -- This sets overriding container image information.
+  # Use if you wish to target specific versions of the RC.
   # More information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+  # @default -- `{}`
   image:
+    # -- Image tag.
     tag: ""
 
-  # Can provide any valid q runtime argument here. Full details https://code.kx.com/q/basics/cmdline/
-  # NOTE the '-p' argument will be overridden by the 'KXI_PORT' env variable
-  args: [ ]
-#    - '-s'
-#    - '2'
-#    - '-w'
-#    - '1946'
-#    - '-g'
-#    - '0'
+  # -- Can provide any valid `q` runtime argument here.
+  # Full details here: https://code.kx.com/q/basics/cmdline/
+  # **NOTE** the '-p' argument will be overridden by the `KXI_PORT` env variable.
+  # @default -- `[]`
+  args: []
+  #  - '-s'
+  #  - '2'
+  #  - '-w'
+  #  - '1946'
+  #  - '-g'
+  #  - '0'
 
-  # This is for setting up a service
+  # -- Provisions the Kubernetes Service required to expose the workloads.
   # More information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+  # @default -- `{}`
   service:
-    type: ClusterIP
+    # -- This sets the Service type.
+    # Setting the type field to `LoadBalancer` provisions a load balancer for your Service.
+    # The actual creation of the load balancer happens asynchronously, and information about the provisioned balancer is published in the Service's `.status.loadBalancer`.
+    # More information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+    type: "ClusterIP"
+
+    # -- Set exposed Service Port.
+    # Refer to Service Ports https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
     port: 5040
+
     # This sets the service annotations for the Resource Coordinator.
-    # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+    # Refer to Object Annotations https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+    # @default -- `{}`
     annotations: {}
 
-  # Allows additional volumeMounts to be added to the Resource Coordinator
+  # -- Allows additional `volumeMounts` to be added to the Resource Coordinator.
+  # Refer to Volumes https://kubernetes.io/docs/concepts/storage/volumes/
+  # @default -- `[]`
   volumeMounts: []
 
-  # Allows additional volumes to be added to the Resource Coordinator
+  # -- Allows additional `volumes` to be added to the Resource Coordinator.
+  # Refer to Volumes https://kubernetes.io/docs/concepts/storage/volumes/
+  # @default -- `[]`
   volumes: []
 
-  # This is for setting Kubernetes Annotations to a Pod.
-  # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  # -- Custom annotations to be applied to Pod resources.
+  # Dictionary of key-value pairs.
+  # Refer to Object Annotations https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  # @default -- `{}`
   podAnnotations: {}
 
-  # This is for setting Kubernetes Labels to a Pod.
-  # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  # -- Custom labels to be applied to Pod resources.
+  # Dictionary of key-value pairs.
+  # Refer to Object Labels https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  # @default -- `{}`
   podLabels: {}
 
-  # Resource Coordinator Kubernetes resources.
-  # For more information checkout: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # -- Resource Coordinator Kubernetes resources.
+  # Refer to Container Resources https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
     # resources, such as Minikube. If you do want to specify resources, uncomment the following
     # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
     # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
+    #   cpu: "100m"
+    #   memory: "128Mi"
     # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
+    #   cpu: "100m"
+    #   memory: "128Mi"
 
-  # Sets the available free string queries available for the RC.
+  # -- Sets the available free string queries available for the RC.
   # Each has security and performance implications.
-  # More info: https://code.kx.com/insights/api/kxi-python/query.html#qsql
+  # More information can be found here: https://code.kx.com/insights/api/kxi-python/query.html#qsql
   allowedSbxApis: .kxi.sql,.kxi.qsql,.kxi.sql2
 
-  # Default common environment variables for the Resource Coordinator
-  # Additional ENVs can be added and these overridden in custom values files
-  # If overriding 'envs', ensure you include all the default values.
+  # -- Default common environment variables for the Resource Coordinator.
+  # Additional ENVs can be added and these overridden in custom values files.
+  # If overriding `envs`, ensure you include all the default values.
   envs:
     - name: KXI_LOG_FORMAT
       value: text
     - name: KXI_LOG_LEVELS
       value: default:debug
 
-  # Allows adding node selector constraints to the Resource Coordinator.
-  # For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes/
+  # -- Allows adding node selector constraints to a Pod.
+  # This constrains the pods to run only on nodes that match the specified labels.
+  # Dictionary of key-value pairs.
+  # Refer to NodeSelector https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
   nodeSelector: {}
 
-  # Allows adding tolerations to the Resource Coordinator.
-  # For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  # -- This is for setting Kubernetes Tolerations to a Pod.
+  # This allows the pods to be scheduled on nodes with matching taints.
+  # Refer to Taint and Tolerations https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  # @default -- `[]`
   tolerations: []
 
-  # Allows adding affinities to the Resource Coordinator.
-  # For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  # -- Allows adding affinities to the Resource Coordinator.
+  # Refer to Pod Affinity https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  # @default -- `{}`
   affinity: {}
 
-# Default Service Gateway configuration for Insights Gateway chart components
+# Default Service Gateway configuration for Insights Gateway chart components.
+# @default -- `{}`
 kxiSg:
-  # This sets the number of replicas for the Service Gateway.
+  # -- This sets the number of replicas for the Service Gateway.
   # More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#replicas-and-scaling
   replicaCount: 1
 
-  # This sets overriding container image information. Use if you wish to target specific versions of the Agg.
+  # -- This sets overriding container image information. Use if you wish to target specific versions of the Service Gateway.
   # More information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+  # @default -- `{}`
   image:
+    # -- Image tag.
     tag: ""
 
   # This is for setting up a service.
   # More information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+  # @default -- `{}`
   service:
-    type: ClusterIP
+    # -- Sets the Service type.
+    # Refer to Service Types https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+    type: "ClusterIP"
+
+    # -- Set list of exposed service ports.
     ports:
-      # TCP/qIPC port
+      # -- TCP/qIPC port
       qipc: 5050
-      # REST/HTTP port
+
+      # -- REST/HTTP port
       http: 8080
-      # When customIpcAuth.enabled is enabled, this port is used for the external qIPC connection to the Service Gateway.
+
+      # -- When `customIpcAuth.enabled` is set to `true`, this port is used for the external qIPC connection to the Service Gateway.
+      # More information can be found here: https://code.kx.com/insights/microservices/gateway/configuration/custom-ipc-auth.html
       qipcext: 5051
 
-    # This sets the service annotations for the Service Gateway.
-    # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+    # -- This sets the service annotations for the Service Gateway.
+    # Refer to Object Annotations https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+    # @default -- `{}`
     annotations: {}
 
-  # Allows additional volumeMounts to be added to the Service Gateway.
+  # -- Allows additional `volumeMounts` to be added to the Service Gateway.
+  # @default -- `[]`
   volumeMounts: []
 
-  # Allows additional volumes to be added to the Service Gateway.
+  # -- Allows additional `volumes` to be added to the Service Gateway.
+  # @default -- `[]`
   volumes: []
 
-  # This is for setting Kubernetes Annotations to a Pod.
-  # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  # -- This is for setting Kubernetes Annotations to a Pod.
+  # Dictionary of key-value pairs.
+  # Refer to Object Annotations https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  # @default -- `{}`
   podAnnotations: {}
 
-  # This is for setting Kubernetes Labels to a Pod.
-  # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  # -- This is for setting Kubernetes Labels to a Pod.
+  # Dictionary of key-value pairs.
+  # Refer to Object Labels https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  # @default -- `{}`
   podLabels: {}
 
-  # Service Gateway Kubernetes resources.
-  # For more information checkout: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # -- Service Gateway Kubernetes resources.
+  # Refer to Container Resources https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
     # resources, such as Minikube. If you do want to specify resources, uncomment the following
     # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
     # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
+    #   cpu: "100m"
+    #   memory: "128Mi"
     # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
+    #   cpu: "100m"
+    #   memory: "128Mi"
 
-  # Default common environment variables for the Service Gateway
-  # Additional ENVs can be added and these overridden in custom values files
-  # If overriding 'envs', ensure you include all the default values.
+  # -- Default common environment variables for the Service Gateway.
+  # Additional ENVs can be added and these overridden in custom values files.
+  # If overriding `envs`, ensure you include all the default values.
   envs:
     - name: KXI_LOG_FORMAT
       value: text
     - name: KXI_LOG_LEVELS
       value: default:debug
-    # Enables CORS headers to allow external domains to access the Service Gateway
+    # -- Enables CORS headers to allow external domains to access the Service Gateway.
     - name: KXI_SG_CORS_ENABLED
       value: "false"
-    # Comma separated list of the full FQDN remote domains which are allowed to access the Service Gateway
+    # -- Comma separated list of the full FQDN remote domains which are allowed to access the Service Gateway.
     - name: KXI_SG_CORS_ORIGINS
       value: ""
-    # When customIpcAuth.enabled is enabled, this defines if the service.ports.qipcext port should use SSL.
+    # -- When `customIpcAuth.enabled` is set to `true`, this defines if the `service.ports.qipcext` port should use SSL.
     - name: KXI_SG_USE_SSL
       value: "0"
-    # Can set JAVA_OPTS for advance memory configurations
+    # -- Can set JAVA_OPTS for advance memory configurations
     # - name: JAVA_OPTS
     #   value: "-Xms268435456 -Xmx2080374784 -XX:MaxDirectMemorySize=2080374784"
 
-  # Allows adding node selector constraints to the Service Gateway.
-  # For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes/
+  # -- Allows adding node selector constraints to the Service Gateway.
+  # This constrains the pods to run only on nodes that match the specified labels.
+  # Dictionary of key-value pairs.
+  # Refer to NodeSelector https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  # @default -- `{}`
   nodeSelector: {}
 
-  # Allows adding tolerations to the Service Gateway.
-  # For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  # -- Allows adding tolerations to the Service Gateway.
+  # This allows the pods to be scheduled on nodes with matching taints.
+  # Refer to Taint and Tolerations https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  # @default -- `[]`
   tolerations: []
 
-  # Allows adding affinities to the Service Gateway.
-  # For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  # -- Allows adding affinities to the Service Gateway.
+  # Refer to Pod Affinity https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  # @default -- `{}`
   affinity: {}
 
-  # Custom IPC Authorization configuration.
-  # Configure the customIpcAuth section to enable custom authentication for an IPC connection to the Service Gateway.
-  # More information: https://code.kx.com/insights/microservices/database/configuration/advanced/custom-auth-ipc.html
+  # -- Custom IPC Authorization configuration.
+  # Configure the `customIpcAuth` section to enable custom authentication for an IPC connection to the Service Gateway.
+  # More information can be found here: https://code.kx.com/insights/microservices/database/configuration/advanced/custom-auth-ipc.html
+  # @default -- `{}`
   customIpcAuth:
-    # Enable/disable custom IPC authorization sidecar
+    # -- Enable/disable custom IPC authorization sidecar.
     enabled: false
+
     sidecar:
-      # Container image for the custom authorization sidecar
+      # -- Container image for the custom authorization sidecar.
+      # @default -- `{}`
       image:
-        # Where the custom authentication sidecar image is located
+        # -- Where the custom authentication sidecar image is located.
+        # @default -- `"portal.dl.kx.com/"`
         repository: ""
-        # The name of the custom authentication sidecar image
+
+        # -- The name of the custom authentication sidecar image.
         name: ""
-        # The tag of the custom authentication sidecar image
+
+        # -- The tag of the custom authentication sidecar image.
         tag: ""
-        pullPolicy: IfNotPresent
-      # Port for the authorization sidecar IPC connection
+
+        # -- Image pull policy.
+        # Refer to Image Pull Policy https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy
+        pullPolicy: "IfNotPresent"
+
+      # -- Port for the authorization sidecar IPC connection.
       port: 5000
-      # Custom authorization function name (defaults to "authorize")
+
+      # -- Custom authorization function name (defaults to `"authorize"`).
       authApi: "authorize"
-      # Enable TLS for IPC connection to authorization sidecar
+
+      # -- Enable TLS for IPC connection to authorization sidecar.
       useTls: false
-      # Additional environment variables for the authorization sidecar
+
+      # -- Additional environment variables for the authorization sidecar.
       envs:
-        # Assuming the sidecar runs KDB, setting the QLIC env to the location of the license file
+        # Assuming the sidecar runs KDB, setting the QLIC env to the location of the license file.
         - name: QLIC
           value: "/opt/kx/lic"
-      # Resource limits and requests for the authorization sidecar
+
+      # -- Resource limits and requests for the authorization sidecar.
+      # Refer to Container Resources https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
       resources: {}
         # limits:
-        #   cpu: 100m
-        #   memory: 128Mi
+        #   cpu: "100m"
+        #   memory: "128Mi"
         # requests:
-        #   cpu: 100m
-        #   memory: 128Mi
-      # Additional volume mounts for the authorization sidecar
+        #   cpu: "100m"
+        #   memory: "128Mi"
+
+      # -- Additional volume mounts for the authorization sidecar.
+      # Refer to Volumes https://kubernetes.io/docs/concepts/storage/volumes/
+      # @default -- `[]`
       volumeMounts: []
-      # Additional volumes for the authorization sidecar
+
+      # -- Additional volumes for the authorization sidecar.
+      # Refer to Volumes https://kubernetes.io/docs/concepts/storage/volumes/
+      # @default -- `[]`
       volumes: []
 
-# Default Aggregator configuration for Insights Gateway chart components
+# Default Aggregator configuration for Insights Gateway chart components.
+# @default -- `{}`
 kxiAgg:
-  # This sets the number of replicas for the Aggregator.
+  # -- This sets the number of replicas for the Aggregator.
   # More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#replicas-and-scaling
   replicaCount: 1
 
-  # This sets overriding container image information. Use if you wish to target specific versions of the Agg.
+  # -- This sets overriding container image information. Use if you wish to target specific versions of the Agg.
   # More information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+  # @default -- `{}`
   image:
+    # -- Image tag.
     tag: ""
 
-
-  # Allows for custom code to be loaded into the Aggregator specifically for UDAs typically deployed in a kxi-db chart.
-  # If customCode.configMap is populated there should be a configmap deployed by that name and it will be mounted into the Aggregator.
-  # The entrypoint should be the name of the file which is executed to load the custom code.
+  # -- Allows for custom code to be loaded into the Aggregator specifically for UDAs typically deployed in a kxi-db chart.
   # More information can be found here: https://code.kx.com/insights/1.15/microservices/database/configuration/uda.html#load-uda
+  # @default -- `{}`
   customCode:
+    # -- If `customCode.configMap` is populated there should be a `configMap` deployed by that name
+    # and it will be mounted into the Aggregator.
     configMap: ""
-    entry: ""
     # configMap: "kxi-db-customcode"
+
+    # -- The entrypoint should be the name of the file which is executed to load the custom code.
+    entry: ""
     # entry: "udas.q"
 
-  # Can provide any valid q runtime argument here. Full details https://code.kx.com/q/basics/cmdline/
-  # NOTE the '-p' argument will be overridden by the 'KXI_PORT' env variable
-  args: [ ]
-#    - '-s'
-#    - '2'
-#    - '-w'
-#    - '1946'
-#    - '-g'
-#    - '0'
+  # -- Can provide any valid `q` runtime argument here.
+  # Full details here: https://code.kx.com/q/basics/cmdline/
+  # **NOTE** the `-p` argument will be overridden by the `KXI_PORT` env variable.
+  # @default -- `[]`
+  args: []
+  #  - '-s'
+  #  - '2'
+  #  - '-w'
+  #  - '1946'
+  #  - '-g'
+  #  - '0'
 
-  # This is for setting up a service
+  # -- This is for setting up an Aggregator service.
   # More information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+  # @default -- `{}`
   service:
-    type: ClusterIP
+    # -- Sets the Service type.
+    # Refer to Service Types https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+    type: "ClusterIP"
+
+    # -- Set exposed Service Port.
+    # Refer to Service Ports https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
     port: 5060
-    # This sets the service annotations for the Aggregator.
-    # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+
+    # -- This sets the service annotations for the Aggregator.
+    # Dictionary of key-value pairs.
+    # Refer to Object Annotations https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+    # @default -- `{}`
     annotations: {}
 
-  # Allows additional volumeMounts to be added to the Aggregator
+  # -- Allows additional `volumeMounts` to be added to the Aggregator.
+  # @default -- `[]`
   volumeMounts: []
 
-  # Allows additional volumes to be added to the Aggregator
+  # -- Allows additional `volumes` to be added to the Aggregator.
+  # @default -- `[]`
   volumes: []
 
-  # This is for setting Kubernetes Annotations to a Pod.
-  # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  # -- This is for setting Kubernetes Annotations to a Pod.
+  # Dictionary of key-value pairs.
+  # Refer to Object Annotations https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  # @default -- `{}`
   podAnnotations: {}
 
-  # This is for setting Kubernetes Labels to a Pod.
-  # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  # -- This is for setting Kubernetes Labels to a Pod.
+  # Dictionary of key-value pairs.
+  # Refer to Object Labels https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  # @default -- `{}`
   podLabels: {}
 
-  # Aggregator Kubernetes resources.
-  # For more information checkout: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # -- Aggregator Kubernetes resources.
+  # Refer to Container Resources https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
     # resources, such as Minikube. If you do want to specify resources, uncomment the following
     # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
     # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
+    #   cpu: "100m"
+    #   memory: "128Mi"
     # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
+    #   cpu: "100m"
+    #   memory: "128Mi"
 
-  # Default common environment variables for the Aggregator
-  # Additional ENVs can be added and these overridden in custom values files
-  # If overriding 'envs', ensure you include all the default values.
+  # -- Default common environment variables for the Aggregator.
+  # Additional ENVs can be added and these overridden in custom values files.
+  # If overriding `envs`, ensure you include all the default values.
   envs:
     - name: KXI_LOG_FORMAT
       value: text
     - name: KXI_LOG_LEVELS
       value: default:debug
-    # Custom q code can be loaded into the aggregator from mounted file systems
+    # Custom q code can be loaded into the aggregator from mounted file systems.
     #  - name: KXI_CUSTOM_FILE
     #    value: /opt/kx/dev/custom_agg_api.q
 
-
-  # Allows adding node selector constraints to the Aggregator.
-  # For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes/
+  # -- Allows adding node selector constraints to the Aggregator.
+  # This constrains the pods to run only on nodes that match the specified labels.
+  # Dictionary of key-value pairs.
+  # Refer to NodeSelector https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
   nodeSelector: {}
 
-  # Allows adding tolerations to the Aggregator.
-  # For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  # -- Allows adding tolerations to the Aggregator.
+  # This allows the pods to be scheduled on nodes with matching taints.
+  # Refer to Taint and Tolerations https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  # @default -- `[]`
   tolerations: []
 
-  # Allows adding affinities to the Aggregator.
-  # For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  # -- Allows adding affinities to the Aggregator.
+  # Refer to Pod Affinity https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
 
-# Default Sidecar configuration for Insights Gateway chart components
+# -- Default Sidecar configuration for Insights Gateway chart components.
+# @default -- `{}`
 kxiSidecar:
-  # This sets overriding container image information. Use if you wish to target specific versions of the sidecar.
+  # -- This sets overriding container image information. Use if you wish to target specific versions of the kxiSidecar.
   # More information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+  # @default -- `{}`
   image:
-    tag: "1.18.0"
+    # -- Image tag.
+    tag: "1.18.1"

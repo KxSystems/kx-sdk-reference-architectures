@@ -23,20 +23,22 @@ spec:
       echo "Testing Stream Processor service..."
       SP_SERVICE="{{ .Release.Name }}-kxi-sp"
       SP_PORT={{ index .Values "kxi-sp" "service" "port" | default "5000" }}
+      MAX_RETRIES=60
+      RETRY_SLEEP=2
 
       # Wait for service to be ready
       echo "Waiting for Stream Processor service ${SP_SERVICE} to be ready..."
-      for i in $(seq 1 30); do
+      for i in $(seq 1 ${MAX_RETRIES}); do
         if curl -f -s --max-time 5 http://${SP_SERVICE}:${SP_PORT}/pipelines > /dev/null 2>&1; then
           echo "Stream Processor HTTP endpoint is accessible"
           break
         fi
-        if [ $i -eq 30 ]; then
-          echo "ERROR: Stream Processor HTTP endpoint not accessible after 30 attempts"
+        if [ $i -eq ${MAX_RETRIES} ]; then
+          echo "ERROR: Stream Processor HTTP endpoint not accessible after ${MAX_RETRIES} attempts"
           exit 1
         fi
-        echo "Attempt $i/30: Service not ready, waiting..."
-        sleep 2
+        echo "Attempt $i/${MAX_RETRIES}: Service not ready, waiting..."
+        sleep ${RETRY_SLEEP}
       done
 
       # Test SP coordinator endpoint
