@@ -1,0 +1,83 @@
+# Assembly file for tenant shard 1 of 2.
+# This file is IDENTICAL to kxi-db-tenant-2-assembly.yaml except for the three
+# shard-specific fields marked SHARD-SPECIFIC below.
+name: insightsdb-tenant-one          # SHARD-SPECIFIC: unique name per shard
+description: InsightsDB Sharded Database, by tenant
+labels:
+  group: tenant
+  shrd: one                          # SHARD-SPECIFIC: shard identifier (one|two)
+
+tables:
+  position:
+    type: partitioned
+    isSharded: true
+    prtnCol: time
+    sortColsDisk: [sym]
+    columns:      
+      - name: time
+        type: timestamp
+      - name: sym
+        type: symbol
+        attrDisk: parted
+      - name: tenant
+        type: symbol
+      - name: position
+        type: long
+
+bus:
+  stream:
+    protocol: rt
+    topic: kxi-db-tenant-1           # SHARD-SPECIFIC: must match RT stream name for this shard
+
+mounts:
+  rdb:
+    type: stream
+    baseURI: none
+    partition: none
+  idb:
+    type: local
+    baseURI: file:///mnt/db/idb
+    partition: ordinal
+  hdb:
+    type: local
+    baseURI: file:///mnt/db/hdb
+    partition: date
+
+elements:
+  dap:
+    instances:
+      dap:
+        mountList:
+          - rdb
+          - idb
+          - hdb
+
+  sm:
+    description: Storage manager
+    source: stream
+    tiers:
+      - name: stream
+        mount: rdb
+      - name: idb
+        mount: idb
+        schedule:
+          freq: 0D00:10:00 # every 10 minutes
+      - name: hdb1
+        mount: hdb
+        store: file:///mnt/db/hdb
+        schedule:
+          freq: 1D00:00:00 # every day
+          snap:   01:35:00 # at 1:35 AM
+        retain:
+          time: 2 days
+      - name: hdb2
+        mount: hdb
+        store: file:///mnt/db/hdbt2
+        retain:
+          time: 5 weeks
+      - name: hdb3
+        mount: hdb
+        store: file:///mnt/db/hdbt3
+        retain:
+          time: 3 months
+    disableDiscovery: true

@@ -23,3 +23,6 @@
 .idea/
 *.tmproj
 .vscode/
+
+# Docs
+README.md.gotmpl

@@ -91,11 +91,11 @@ This should follow
 
 ```yaml
 ...
-# You must set your license name. Default is 'kc.lic'
+# -- You must set your license name. Default is `"kc.lic"`.
 # Available types are:
-#  - kc.lic
-#  - k4.lic
-#  - kx.lic
-kxLicenseName: kc.lic
+#  - `"kc.lic"`
+#  - `"k4.lic"`
+#  - `"kx.lic"`
+kxLicenseName: "kc.lic"
 ...
 ```

@@ -1,0 +1,10 @@
+# Per-shard data directories (each shard must have its own paths to avoid conflicts)
+kxi_dir_data_db=${kxi_data_dir}/exch-2/db
+kxi_dir_data_logs=${kxi_data_dir}/exch-2/logs
+kxi_dir_data_logs_rt=${kxi_data_dir}/exch-2/logs_rt
+
+# assembly settings
+assembly_file=kxi-db-exch-2-assembly.yaml
+
+# kxi-rt settings
+kxi_rt_stream_name=kxi-db-exch-2

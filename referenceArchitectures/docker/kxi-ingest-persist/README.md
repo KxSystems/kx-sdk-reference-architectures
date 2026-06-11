@@ -44,7 +44,7 @@ In this reference architecture deployment, the use case is ‘Ingest and Persist
    # export KDB_K4LICENSE_B64=$(base64 path-to/k4.lic)
    ```
 
-   Check License name and use the appropriate environment variable name. If using `k4.lic` license, update the `license.env` file under the docker reference architecture
+   Check License name and use the appropriate environment variable name. If using `"k4.lic"` license, update the `license.env` file under the docker reference architecture
 
 1. **Volumes**
    All volumes are **bind-mounted**, the `config`, `packages` and `sidecar_cfg` are used for configuration (see `.env`: `kxi_dir_config`, `kxi_dir_pkgs`, `kxi_dir_sidecar_cfg`).

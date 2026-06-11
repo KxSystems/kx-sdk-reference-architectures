@@ -26,7 +26,7 @@ This requires two assembly files describing each database:
 - [kxi-db-exch-assembly](config/kxi-db-exch-assembly.yaml) - The assembly configuration for the `exch` database
 - [kxi-db-tenant-assembly](config/kxi-db-tenant-assembly.yaml) - The assembly configuration for the `tenant` database
 
-Both databases require a single common configuration file used for consistent behavior across both databases. This should be reviewed and updated based on your configuration requirements. **NOTE:** Please ensure to set the `storageClassName` appropriately.
+Both databases require a single common configuration file used for consistent behavior across both databases. This should be reviewed and updated based on your configuration requirements. **NOTE:** Please ensure to set the `storageClassName` appropriately. This reference architecture uses a single HDB storage tier; for multi-tier HDB configuration see the [storage tiers](https://code.kx.com/insights/enterprise/database/storage/tiers.html) and [tier configuration](https://code.kx.com/insights/enterprise/database/configuration/package/storage.html#tiers) documentation.
 
 - [kxi-db-shard-values](config/kxi-db-shard-values.yaml) - A common configuration for all databases and all shards of the deployment
 
@@ -75,7 +75,7 @@ Review and update the sample configuration [`kxi-api-values.yaml`](config/kxi-ap
 Deploy the chart:
 
 ```bash
-# Run from '.../referenceArchitectures/kxi-sharded-databases directory
+# Run from '.../referenceArchitectures/helm/kxi-sharded-databases directory
 
 # Pull in dependencies
 helm dependency build ./kxi-api
@@ -97,7 +97,7 @@ Each shard of both databases will be serviced by a RT message bus, and as detail
 Before we deploy the Database we need to copy the relevant assembly files to the `kxi-db` directory:
 
 ```bash
-# Run from '.../referenceArchitectures/kxi-sharded-databases directory
+# Run from '.../referenceArchitectures/helm/kxi-sharded-databases directory
 cp -rf ./config/kxi-db-exch-assembly.yaml ../../../kxCharts/kxi-db
 ```
 
@@ -106,7 +106,7 @@ cp -rf ./config/kxi-db-exch-assembly.yaml ../../../kxCharts/kxi-db
 To deploy the chart:
 
 ```bash
-# Run from '.../referenceArchitectures/kxi-sharded-databases directory
+# Run from '.../referenceArchitectures/helm/kxi-sharded-databases directory
 # Pull in dependencies
 helm dependency build ./kxi-db-shard
 
@@ -123,7 +123,7 @@ helm install $RELEASENAME_EXCH1 ./kxi-db-shard -f $VALUESFILE_COMMON -f $VALUESF
 To deploy the chart
 
 ```bash
-# Run from '.../referenceArchitectures/kxi-sharded-databases directory
+# Run from '.../referenceArchitectures/helm/kxi-sharded-databases directory
 RELEASENAME_EXCH2=kxi-db-exch-2 # Unique name for this deployment
 NAMESPACE="kxi-sdk"
 
@@ -141,7 +141,7 @@ Plan to deploy a `tenant` database containing two shards. Both shards use the co
 Before we deploy the Database we need to copy the relevant assembly files to the `kxi-db` directory
 
 ```bash
-# Run from '.../referenceArchitectures/kxi-sharded-databases directory
+# Run from '.../referenceArchitectures/helm/kxi-sharded-databases directory
 cp -rf ./config/kxi-db-tenant-assembly.yaml ../../../kxCharts/kxi-db
 ```
 
@@ -150,7 +150,7 @@ cp -rf ./config/kxi-db-tenant-assembly.yaml ../../../kxCharts/kxi-db
 To deploy the chart
 
 ```bash
-# Run from '.../referenceArchitectures/kxi-sharded-databases directory
+# Run from '.../referenceArchitectures/helm/kxi-sharded-databases directory
 # Pull in dependencies
 helm dependency build ./kxi-db-shard
 
@@ -167,7 +167,7 @@ helm install $RELEASENAME_TENANT1 ./kxi-db-shard -f $VALUESFILE_COMMON -f $VALUE
 To deploy the chart
 
 ```bash
-# Run from '.../referenceArchitectures/kxi-sharded-databases directory
+# Run from '.../referenceArchitectures/helm/kxi-sharded-databases directory
 RELEASENAME_TENANT2=kxi-db-tenant-2 # Unique name for this deployment
 NAMESPACE="kxi-sdk"
 
@@ -181,7 +181,7 @@ helm install $RELEASENAME_TENANT2 ./kxi-db-shard -f $VALUESFILE_COMMON -f $VALUE
 Upgrading and updating of configuration is executed using `helm upgrade`. This will deploy any changes made to the charts or configuration since the last deploy and automatically redeploy the latest to the application.
 
 ```bash
-# Run from '.../referenceArchitectures/kxi-sharded-databases' directory
+# Run from '.../referenceArchitectures/helm/kxi-sharded-databases' directory
 helm upgrade $RELEASENAME ./kxi-api -f $VALUESFILE -n $NAMESPACE
 helm upgrade $RELEASENAME_EXCH1 ./kxi-db-shard -f $VALUESFILE_COMMON -f $VALUESFILE_SHARD_EXCH1 -n $NAMESPACE
 helm upgrade $RELEASENAME_EXCH2 ./kxi-db-shard -f $VALUESFILE_COMMON -f $VALUESFILE_SHARD_EXCH2 -n $NAMESPACE
@@ -202,7 +202,7 @@ kubectl port-forward svc/$RELEASENAME-kxi-sp 5000:5000 -n $NAMESPACE &
 #### Deploy `exch` pipelines
 
 ```bash
-# Run from '.../referenceArchitectures/kxi-sharded-databases/spScripts' directory
+# Run from '.../referenceArchitectures/helm/kxi-sharded-databases/spScripts' directory
 #Define variables
 PIPELINE_NAME=exch-sp-1
 SPEC=trade_spec.q
@@ -218,7 +218,7 @@ SPEC=trade_spec.q
 #### Deploy `tenant` pipelines
 
 ```bash
-# Run from '.../referenceArchitectures/kxi-sharded-databases/spScripts' directory
+# Run from '.../referenceArchitectures/helm/kxi-sharded-databases/spScripts' directory
 #Define variables
 PIPELINE_NAME=tenant-sp-1
 SPEC=position_spec.q

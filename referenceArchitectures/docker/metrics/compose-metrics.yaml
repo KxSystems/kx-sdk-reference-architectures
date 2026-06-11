@@ -2,7 +2,8 @@
 networks:
   kx:
     name: kx
-    driver: bridge
+    external: true
+    # driver: bridge  # use instead if the kx network does not already exist
 
 services:
   prometheus:
@@ -11,7 +12,7 @@ services:
     ports:
       - 9090:9090
     volumes:
-      - ./prometheus-config.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus-config.yml:/etc/prometheus/prometheus.yml 
     networks: [kx]
   grafana:
     image: grafana/grafana-oss

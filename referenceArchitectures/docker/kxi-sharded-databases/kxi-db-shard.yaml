@@ -1,0 +1,169 @@
+services:
+  kxi-da:
+    # Unique hostname per shard so shards can be distinguished on the shared kx network
+    hostname: ${kxi_rt_stream_name}-da
+    image: ${kxi_img_da}
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    env_file:
+      - license.env
+    environment:
+      - KXI_NAME=kxi-da
+      - KXI_SC=dap
+      # Set up for discovery purposes
+      - KXI_SG_RC_ADDR=kxi-rc:${kxi_port_rc}
+      - KXI_SM_ADDR=${kxi_rt_stream_name}-sm:${kxi_port_sm}
+      - KXI_PORT=${kxi_port_da}
+      - KXI_ASSEMBLY_FILE=/mnt/config/${assembly_file}
+      - KXI_LOG_FORMAT=${kxi_log_format}
+      - KXI_LOG_LEVELS=default:${kxi_log_level}
+      - KXI_SECURE_ENABLED=0      
+      - KXI_CONFIG_FILE=sidecar-cfg/da-config.json  # Optional for gathering metrics
+      - RT_LOG_PATH=/mnt/logs/da/
+      - RT_TOPIC_PREFIX=rt-
+      - RT_REPLICAS=1
+      - KXI_LATE_DATA=true
+    networks: [kx]
+
+    volumes:
+      - ${kxi_dir_config}:/mnt/config
+      - ${kxi_dir_data_db}:/mnt/db
+      - ${kxi_dir_data_logs}:/mnt/logs
+      - ${kxi_dir_sidecar_cfg}:/sidecar-cfg/  # Optional for gathering metrics
+      - ${kxi_dir_pkgs}:/opt/kx/packages
+
+  kxi-sm:
+    # Unique hostname per shard so the DA can address its own SM on the shared kx network
+    hostname: ${kxi_rt_stream_name}-sm
+    image: ${kxi_img_sm}
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    env_file:
+      - license.env
+    environment:
+      - KXI_NAME=kxi-sm
+      - KXI_SC=sm
+      - KXI_PORT=${kxi_port_sm}
+      - KXI_SECURE_ENABLED=0
+      - KXI_ASSEMBLY_FILE=/mnt/config/${assembly_file}
+      - KXI_LOG_FORMAT=${kxi_log_format}
+      - KXI_LOG_LEVELS=default:${kxi_log_level}
+      - KXI_RT_SM_LOG_PATH=/mnt/logs/sm
+      - KXI_RT_EOI_LOG_PATH=/mnt/logs/eoi
+      - KXI_CONFIG_FILE=sidecar-cfg/sm-config.json  # Optional for gathering metrics
+      - RT_TOPIC_PREFIX=rt-
+      - RT_REPLICAS=1
+      - KXI_LATE_DATA=true
+    networks: [kx]
+   
+    volumes:
+      - ${kxi_dir_config}:/mnt/config
+      - ${kxi_dir_data_db}:/mnt/db
+      - ${kxi_dir_data_logs}:/mnt/logs
+      - ${kxi_dir_sidecar_cfg}:/sidecar-cfg/  # Optional for gathering metrics
+      - ${kxi_dir_pkgs}:/opt/kx/packages
+
+
+  kxi-rt:
+    image: ${kxi_img_rt}
+    # Need to set hostname so rt nodes/publishers/subscribers can find each other
+    hostname: rt-${kxi_rt_stream_name}-0
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    command: [
+      '-p', '${kxi_port_rt}', '-in', '/s/in', '-out', '/s/out', '-cp',
+      '/s/state', '-size', '${kxi_rt_replicas}', '-limit', '${kxi_rt_limit}',
+      '-time', '${kxi_rt_time}', '-disk', '${kxi_rt_disk}'
+    ]
+    env_file:
+      - license.env
+    environment:
+      - RT_EXPORT_METRIC="0"
+      - RT_TOPIC_PREFIX=rt-
+      - RT_EXTERN_PREFIX=rt-
+      - RT_SINK=${kxi_rt_stream_name}
+      - RT_STREAM=${kxi_rt_stream_name}
+      - KXI_SECURE_ENABLED=0
+      - RT_LOGLEVEL_CONSOLE=${kxi_rt_log_level_console}
+      - RT_QURAFT_LOG_LEVEL=${kxi_rt_quraft_log_level}
+      - RT_SEQ_SESSION_PATH=/s/session
+      - RAFT_HEARTBEAT=${kxi_rt_heartbeat}
+      - RAFT_LOG_SIZE=${kxi_rt_log_size}
+      - RAFT_CHUNK_SIZE=${kxi_rt_chunk_size}
+      - RT_LOG_LEADER=
+    restart: unless-stopped
+    networks: [kx]
+    volumes:
+      - ${kxi_dir_data_logs_rt}:/s
+
+  # Sidecars for gathering metrics. Can be removed if not needed.
+  rdb-sidecar:
+    image: ${kxi_sidecar}
+    hostname: ${kxi_rt_stream_name}-rdb-sidecar
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    env_file:
+      - license.env
+    environment:
+      - KXI_CONFIG_FILE=/sidecar-cfg/da/rdb-config.json
+      - KXI_LOG_CONFIG=/sidecar-cfg/qlog.json
+    volumes:
+      - ${kxi_dir_sidecar_cfg}:/sidecar-cfg/
+    command: -p 8080
+    networks: [kx]
+
+  idb-sidecar:
+    image: ${kxi_sidecar}
+    hostname: ${kxi_rt_stream_name}-idb-sidecar
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    env_file:
+      - license.env
+    environment:
+      - KXI_CONFIG_FILE=/sidecar-cfg/da/idb-config.json
+      - KXI_LOG_CONFIG=/sidecar-cfg/qlog.json
+    volumes:
+      - ${kxi_dir_sidecar_cfg}:/sidecar-cfg/
+    command: -p 8080
+    networks: [kx]
+
+  hdb-sidecar:
+    image: ${kxi_sidecar}
+    hostname: ${kxi_rt_stream_name}-hdb-sidecar
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    env_file:
+      - license.env
+    environment:
+      - KXI_CONFIG_FILE=/sidecar-cfg/da/hdb-config.json
+      - KXI_LOG_CONFIG=/sidecar-cfg/qlog.json
+    volumes:
+      - ${kxi_dir_sidecar_cfg}:/sidecar-cfg/
+    command: -p 8080
+    networks: [kx]
+
+  sm-sidecar:
+    image: ${kxi_sidecar}
+    hostname: ${kxi_rt_stream_name}-sm-sidecar
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    env_file:
+      - license.env
+    environment:
+      - KXI_CONFIG_FILE=/sidecar-cfg/sm-config.json
+      - KXI_LOG_CONFIG=/sidecar-cfg/qlog.json
+    volumes:
+      - ${kxi_dir_sidecar_cfg}:/sidecar-cfg/
+    command: -p 8080
+    networks: [kx]
+
+  rt-sidecar:
+    image: ${kxi_sidecar}
+    hostname: ${kxi_rt_stream_name}-rt-sidecar
+    user: "${DOCKER_UID:-65534}:${DOCKER_GID:-65534}"
+    env_file:
+      - license.env
+    environment:
+      - KXI_CONFIG_FILE=/sidecar-cfg/rt-config.json
+      - KXI_LOG_CONFIG=/sidecar-cfg/qlog.json
+    volumes:
+      - ${kxi_dir_sidecar_cfg}:/sidecar-cfg/
+    command: -p 8080
+    networks: [kx]
+
+networks:
+  kx:
+    external: true

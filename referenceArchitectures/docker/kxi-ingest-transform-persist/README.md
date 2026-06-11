@@ -53,13 +53,10 @@ In this reference architecture deployment blueprint, the Use Case is ‘Ingest, 
    The `db`, `logs`, `logs_rt` and `sp` are for the database and write ahead log. It is necessary to create these before running and ensure their permissions are available to the user `nobody` (65534).
 
    ```bash
-   # Run from .../referenceArchitectures/docker/kxi-ingest-persist
+   # Run from .../referenceArchitectures/docker/kxi-ingest-transform-persist
    mkdir -p data/db data/logs data/logs_rt data/sp
    chmod -R  777 ./data
    ```
-
-1. **Volumes**
-   `db`, `logs`, `logs_rt` and `sp` use Docker **named volumes** (persist across container restarts). `config`, `packages` and `sidecar_cfg` are **bind-mounted** from the host (see `.env`: `kxi_dir_config`, `kxi_dir_pkgs`, `kxi_dir_sidecar_cfg`). Ensure `./config` exists with assembly and other files. To remove named volumes (e.g. for a clean slate), run `docker compose -f kxi-ingest-transform-persist.yaml down -v`.
 
 ## Quickstart
 
