@@ -373,7 +373,7 @@ kxiSidecar:
   # @default -- `{}`
   image:
     # -- Image tag.
-    tag: "1.18.1"
+    tag: "1.19.1"
 
 # Configure the KXI Sidecar metric targets
 # @default -- `{}`
