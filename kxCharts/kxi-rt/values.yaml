@@ -263,7 +263,7 @@ kxiSidecar:
   # @default -- `{}`
   image:
     # -- Image tag.
-    tag: "1.19.1"
+    tag: "1.19.2"
 
 # -- Define how pods are created/deleted.
 # `OrderedReady`, sequential; `Parallel`, all at once.
