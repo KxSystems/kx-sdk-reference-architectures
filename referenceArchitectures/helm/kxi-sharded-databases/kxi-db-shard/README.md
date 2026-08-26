@@ -6,8 +6,8 @@ A Helm chart for the sharded databases
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../../../../kxCharts/kxi-db | kxi-db | 1.18.1 |
-| file://../../../../kxCharts/kxi-rt | kxi-rt | 1.18.1 |
+| file://../../../../kxCharts/kxi-db | kxi-db | 1.19.3 |
+| file://../../../../kxCharts/kxi-rt | kxi-rt | 1.19.2 |
 
 ## Configuration Options
 
@@ -58,7 +58,7 @@ Configuration for the `kxi-db` Subchart.
 | `kxi-db.kxiDa.volumeMounts` | `list` | <code>[]</code> | Allows additional `volumeMounts` to be added to the DA Refer to [Volumes](https://kubernetes.io/docs/concepts/storage/volumes/). |
 | `kxi-db.kxiDa.volumes` | `list` | <code>[]</code> | Allows additional `volumes` to be added to the DAP.<br>Refer to [Volumes](https://kubernetes.io/docs/concepts/storage/volumes/). |
 | `kxi-db.kxiSidecar.image` | `object` | <code>{}</code> | This sets overriding container image information.<br>Use if you wish to target specific versions of the kxiSidecar.<br>More information can be found [here](https://kubernetes.io/docs/concepts/containers/images/). |
-| `kxi-db.kxiSidecar.image.tag` | `string` | <code>"1.18.1"</code> | Image tag. |
+| `kxi-db.kxiSidecar.image.tag` | `string` | <code>"1.19.2"</code> | Image tag. |
 | `kxi-db.kxiSm.affinity` | `object` | <code>{}</code> | This is for setting Kubernetes Affinity to a Pod.<br>Refer to [Pod Affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity). |
 | `kxi-db.kxiSm.args` | `list` | <code>[]</code> | Can provide any valid `q` runtime argument here.<br>Full details [here](https://code.kx.com/q/basics/cmdline/).<br>**NOTE** the `-p` argument will be overridden by the `KXI_PORT` env variable. |
 | `kxi-db.kxiSm.envs` | `list` | <code>[<br/>&nbsp;&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;"name": "KXI_LOG_FORMAT",<br/>&nbsp;&nbsp;&nbsp;&nbsp;"value": "text"<br/>&nbsp;&nbsp;},<br/>&nbsp;&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;"name": "KXI_LOG_LEVELS",<br/>&nbsp;&nbsp;&nbsp;&nbsp;"value": "default:debug"<br/>&nbsp;&nbsp;}<br/>]</code> | Default common environment variables for the SM.<br>Additional ENVs can be added and these overridden in custom values files.<br>If overriding `envs`, ensure you include all the default values. |
@@ -110,7 +110,7 @@ Configuration for the `kxi-rt` Subchart.
 | `kxi-rt.kxLicenseName` | `string` | <code>"kc.lic"</code> | You must set your license name.<br>Default is `"kc.lic"`.<br>Available types are:  - `"kc.lic"`  - `"k4.lic"`  - `"kx.lic"` |
 | `kxi-rt.kxiSidecar` | `object` | <code>{}</code> | Default Sidecar configuration for Reliable Transport chart components |
 | `kxi-rt.kxiSidecar.image` | `object` | <code>{}</code> | This sets overriding container image information.<br>Use if you wish to target specific versions of the kxiSidecar.<br>More information can be found [here](https://kubernetes.io/docs/concepts/containers/images/). |
-| `kxi-rt.kxiSidecar.image.tag` | `string` | <code>"1.18.1"</code> | Image tag. |
+| `kxi-rt.kxiSidecar.image.tag` | `string` | <code>"1.19.2"</code> | Image tag. |
 | `kxi-rt.livenessProbe` | `object` | <code>{}</code> | Configure Liveness Probe for chart.<br>Refer to [Configure Probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/). |
 | `kxi-rt.livenessProbe.httpGet` | `object` | <code>{}</code> | Defines a probe of type `"httpGet"`. |
 | `kxi-rt.livenessProbe.httpGet.path` | `string` | <code>"/readiness"</code> | Path to access on the HTTP server. |
