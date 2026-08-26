@@ -2,7 +2,9 @@
 tradeSchema:([]time:`timestamp$();sym:`symbol$();exch:`symbol$();side:`symbol$();price:`float$();size:`long$();tradeID:`guid$());
 
 syms:`$("EUR/USD";"USD/JPY";"GBP/USD";"USD/CHF";"AUD/USD") /ccy pairs
-shard:last -3_ "-" vs string .z.h
+parts:"-" vs string .z.h;
+sp_idx:first where parts~\:"sp";
+shard:string "J"$ parts[sp_idx + 1];
 exchs:`$"SP_",shard
 sides:`B`S
 prices:syms!45.15 191.10 178.50 128.04 341.30 /starting prices
@@ -19,7 +21,6 @@ getprice:{[s] prices[s]+:rand[1 -1]*getmovement[s]; prices[s]}
 /timer functions
 .pub.all:{
     s:n?syms;
-    0N!"this SP is, ",string .z.h;
     sd:n?sides;
     publishT flip (cols tradeSchema)!(n#.z.P;s;n#exchs;sd;getprice'[s];n?1000;n?0Ng);
     };

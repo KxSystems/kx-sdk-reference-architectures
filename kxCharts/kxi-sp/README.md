@@ -132,7 +132,7 @@ Local values configuration for `kxi-sp`.
 | `kxLicenseName` | `string` | <code>"kc.lic"</code> | You must set your license name.<br>Available types are:  - `"kc.lic"`  - `"k4.lic"`  - `"kx.lic"` |
 | `kxiSidecar` | `object` | <code>{}</code> | Default Sidecar configuration for SP components |
 | `kxiSidecar.image` | `object` | <code>{}</code> | This sets overriding container image information.<br>Use if you wish to target specific versions of the kxiSidecar.<br>More information can be found [here](https://kubernetes.io/docs/concepts/containers/images/). |
-| `kxiSidecar.image.tag` | `string` | <code>"1.18.1"</code> | Image tag. |
+| `kxiSidecar.image.tag` | `string` | <code>"1.19.2"</code> | Image tag. |
 | `livenessProbe` | `object` | <code>{}</code> | Configure Liveness Probe for chart.<br>Refer to [Configure Probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/). |
 | `livenessProbe.httpGet` | `object` | <code>{}</code> | Defines a probe of type `"httpGet"`. |
 | `livenessProbe.httpGet.path` | `string` | <code>"/"</code> | Path to access on the HTTP server. |

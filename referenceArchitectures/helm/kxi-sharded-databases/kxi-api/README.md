@@ -6,8 +6,8 @@ A Helm chart for API access services of a Sharded Database deployment
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../../../../kxCharts/kxi-gw | kxi-gw | 1.18.1 |
-| file://../../../../kxCharts/kxi-sp | kxi-sp | 1.18.2 |
+| file://../../../../kxCharts/kxi-gw | kxi-gw | 1.19.3 |
+| file://../../../../kxCharts/kxi-sp | kxi-sp | 1.19.3 |
 
 ## Configuration Options
 
@@ -101,7 +101,7 @@ Configuration for the `kxi-gw` Subchart.
 | `kxi-gw.kxiSg.volumes` | `list` | <code>[]</code> | Allows additional `volumes` to be added to the Service Gateway. |
 | `kxi-gw.kxiSidecar` | `object` | <code>{}</code> | Default Sidecar configuration for Insights Gateway chart components. |
 | `kxi-gw.kxiSidecar.image` | `object` | <code>{}</code> | This sets overriding container image information.<br>Use if you wish to target specific versions of the kxiSidecar.<br>More information can be found [here](https://kubernetes.io/docs/concepts/containers/images/). |
-| `kxi-gw.kxiSidecar.image.tag` | `string` | <code>"1.18.1"</code> | Image tag. |
+| `kxi-gw.kxiSidecar.image.tag` | `string` | <code>"1.19.2"</code> | Image tag. |
 | `kxi-gw.nameOverride` | `string` | <code>""</code> | This sets the name of the InsightsGW deployment.<br>Overriding Chart name.<br>Used when generating resource names. |
 | `kxi-gw.podSecurityContext` | `object` | <code>{}</code> | Default Pod Security Context for Insights Gateway chart components.<br>Refer to [Pod Security Context](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod). |
 | `kxi-gw.securityContext` | `object` | <code>{}</code> | Default security context for Insights Gateway chart components.<br>Refer to [Security Context](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container). |
@@ -125,7 +125,7 @@ Configuration for the `kxi-sp` Subchart.
 | `kxi-sp.kxLicenseName` | `string` | <code>"kc.lic"</code> | You must set your license name.<br>Available types are:  - `"kc.lic"`  - `"k4.lic"`  - `"kx.lic"` |
 | `kxi-sp.kxiSidecar` | `object` | <code>{}</code> | Default Sidecar configuration for SP components |
 | `kxi-sp.kxiSidecar.image` | `object` | <code>{}</code> | This sets overriding container image information.<br>Use if you wish to target specific versions of the kxiSidecar.<br>More information can be found [here](https://kubernetes.io/docs/concepts/containers/images/). |
-| `kxi-sp.kxiSidecar.image.tag` | `string` | <code>"1.18.1"</code> | Image tag. |
+| `kxi-sp.kxiSidecar.image.tag` | `string` | <code>"1.19.2"</code> | Image tag. |
 | `kxi-sp.livenessProbe` | `object` | <code>{}</code> | Configure Liveness Probe for chart.<br>Refer to [Configure Probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/). |
 | `kxi-sp.livenessProbe.httpGet` | `object` | <code>{}</code> | Defines a probe of type `"httpGet"`. |
 | `kxi-sp.livenessProbe.httpGet.path` | `string` | <code>"/"</code> | Path to access on the HTTP server. |
