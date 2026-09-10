@@ -20,17 +20,18 @@ There are a number of prerequisites which should be highlighted for the Kubernet
 ### Reference Architectures for Kubernetes
 
 1. [Ingest And Persist](helm/kxi-ingest-persist)
-1. [Ingest, Transform And Persist](helm/kxi-ingest-transform-persist)
-1. [Sharded Multi-database](helm/kxi-sharded-databases)
+2. [Ingest, Transform And Persist](helm/kxi-ingest-transform-persist)
+3. [Sharded Multi-database](helm/kxi-sharded-databases)
 
 ## Docker
 
 ### Docker Prerequisites
 
 1. Latest version of `docker` installed
-1. Latest version of `docker compose` installed
+2. Latest version of `docker compose` installed
 
 ### Reference Architectures for Docker
 
 1. [Ingest And Persist](docker/kxi-ingest-persist)
-1. [Ingest, Transform And Persist](docker/kxi-ingest-transform-persist)
+2. [Ingest, Transform And Persist](docker/kxi-ingest-transform-persist)
+3. [Sharded Multi-database](docker/kxi-sharded-databases)
