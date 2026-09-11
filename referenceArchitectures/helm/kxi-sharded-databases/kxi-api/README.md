@@ -6,8 +6,8 @@ A Helm chart for API access services of a Sharded Database deployment
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../../../../kxCharts/kxi-gw | kxi-gw | 1.19.3 |
-| file://../../../../kxCharts/kxi-sp | kxi-sp | 1.19.3 |
+| file://../../../../kxCharts/kxi-gw | kxi-gw | 1.19.4 |
+| file://../../../../kxCharts/kxi-sp | kxi-sp | 1.19.4 |
 
 ## Configuration Options
 

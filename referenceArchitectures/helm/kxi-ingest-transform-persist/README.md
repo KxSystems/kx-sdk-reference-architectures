@@ -208,10 +208,10 @@ By default the policy is to not delete associated volumes to allow it to be rede
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../../../kxCharts/kxi-db | kxi-db | 1.19.3 |
-| file://../../../kxCharts/kxi-gw | kxi-gw | 1.19.3 |
+| file://../../../kxCharts/kxi-db | kxi-db | 1.19.4 |
+| file://../../../kxCharts/kxi-gw | kxi-gw | 1.19.4 |
 | file://../../../kxCharts/kxi-rt | kxi-rt | 1.19.2 |
-| file://../../../kxCharts/kxi-sp | kxi-sp | 1.19.3 |
+| file://../../../kxCharts/kxi-sp | kxi-sp | 1.19.4 |
 
 ## Configuration Options
 
