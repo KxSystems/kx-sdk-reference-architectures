@@ -34,3 +34,4 @@ There are a number of prerequisites which should be highlighted for the Kubernet
 
 1. [Ingest And Persist](docker/kxi-ingest-persist)
 1. [Ingest, Transform And Persist](docker/kxi-ingest-transform-persist)
+1. [Sharded Multi-database](docker/kxi-sharded-databases)

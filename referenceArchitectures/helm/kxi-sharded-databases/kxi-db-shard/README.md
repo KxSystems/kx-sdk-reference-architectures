@@ -6,7 +6,7 @@ A Helm chart for the sharded databases
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../../../../kxCharts/kxi-db | kxi-db | 1.19.3 |
+| file://../../../../kxCharts/kxi-db | kxi-db | 1.19.4 |
 | file://../../../../kxCharts/kxi-rt | kxi-rt | 1.19.2 |
 
 ## Configuration Options
